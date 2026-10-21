@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Vivir en Córdoba · Encuesta 2026</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<!--
+  ============================================================
+  BORRADOR v1.0 · Instrumento cuantitativo · Estudio vivienda Córdoba
+  Encuesta digital · personas de 25 a 35 años · objetivo 200 casos · Meta Ads · incentivo: sorteo
+  Duración objetivo: 10 minutos.
+  Código público del estudio: VC (neutro). No usar el nombre del cliente ni
+  del proyecto en nada que vea el encuestado, ni en URLs ni en archivos públicos.
+  Valores marcados "⚠" en el bloque CONFIG: revisar antes de salir a campo.
+  ============================================================
+-->
+<style>
+:root{
+  --carbon:#1E2210; --crema:#F4EEE3; --bordeaux:#431217; --naranja:#E2581F;
+  --tinta:#2B2521; --panel:#EDE5D7; --surface:#FBF7EF;
+  --tinta-60:rgba(43,37,33,.60); --tinta-40:rgba(43,37,33,.42);
+  --crema-70:rgba(244,238,227,.72);
+  --teja:#BB5A3C; --oliva:#51694F; --indigo:#3C5A6E; --agua:#6E9DA2;
+  --serif:'Newsreader', Georgia, serif;
+  --sans:'Poppins', system-ui, -apple-system, sans-serif;
+  --line:#DED7C6; --line-strong:#CBC1AC;
+  --radius:12px; --radius-sm:8px; --r-pill:50px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--crema);color:var(--tinta);font-family:var(--sans);font-weight:300;font-size:15px;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
+button{font-family:inherit;cursor:pointer}
+::selection{background:var(--bordeaux);color:var(--crema)}
+:focus-visible{outline:2px solid var(--naranja);outline-offset:3px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+#progress-bar-wrap{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(43,37,33,.08);z-index:100}
+#progress-bar-fill{height:100%;background:var(--naranja);transition:width .5s cubic-bezier(.22,1,.36,1)}
+
+#app-header{position:fixed;top:3px;left:0;right:0;height:60px;background:var(--crema-70);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;z-index:99;gap:12px}
+.header-logo{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;flex-shrink:0}
+.header-logo .logo-mark{width:30px;height:30px;border:2.4px solid var(--tinta);border-radius:50%;position:relative;flex-shrink:0}
+.header-logo .logo-mark::after{content:'';position:absolute;width:9px;height:9px;background:var(--bordeaux);border-radius:50%;top:-3px;right:1px}
+.header-logo .logo-text{font-family:var(--sans);font-weight:500;font-size:17px;letter-spacing:.01em;color:var(--tinta);line-height:1}
+.header-meta{font-family:var(--sans);font-weight:400;font-size:9.5px;color:var(--tinta-60);letter-spacing:.18em;text-transform:uppercase;text-align:center;flex:1;min-width:0}
+.header-case{font-family:var(--sans);font-size:9.5px;color:var(--tinta-60);flex-shrink:0;letter-spacing:.05em}
+
+#app{padding-top:62px;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+#sections-root{display:contents}
+.screen{width:100%;max-width:620px;padding:32px 22px 120px;display:none}
+.screen.active{display:block;animation:fadeSlide .4s cubic-bezier(.22,1,.36,1)}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.section-label{font-family:var(--sans);font-weight:500;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--bordeaux);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-label::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--naranja);flex:none}
+.section-title{font-family:var(--serif);font-weight:400;font-size:clamp(27px,6.2vw,34px);line-height:1.12;letter-spacing:-.01em;color:var(--tinta);margin-bottom:6px}
+.section-sub{font-family:var(--sans);font-weight:300;font-size:14.5px;color:var(--tinta-60);line-height:1.55;margin-bottom:32px;max-width:46ch}
+
+.q-block{margin-bottom:32px}
+.q-label{font-family:var(--sans);font-weight:400;font-size:15px;color:var(--tinta);line-height:1.5;margin-bottom:10px}
+.q-label b,.q-label strong{font-weight:500}
+.q-label .req{color:var(--naranja);margin-left:2px}
+.q-note{font-family:var(--sans);font-weight:400;font-size:11px;letter-spacing:.02em;color:var(--tinta-60);margin-bottom:14px;line-height:1.5}
+.counter-badge{display:inline-flex;align-items:center;font-family:var(--sans);font-weight:400;font-size:11px;padding:2px 9px;border-radius:var(--r-pill);background:var(--panel);color:var(--tinta-60);margin-left:8px;letter-spacing:.04em;border:1px solid var(--line)}
+.counter-badge.complete{background:rgba(81,105,79,.14);color:var(--oliva);border-color:var(--oliva)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;padding:9px 16px;border-radius:var(--r-pill);border:1.5px solid var(--line);background:var(--surface);color:var(--tinta-60);font-family:var(--sans);font-weight:400;font-size:13px;cursor:pointer;transition:border-color .18s,background .18s,color .18s;user-select:none}
+.chip:hover{border-color:var(--line-strong);color:var(--tinta)}
+.chip.selected{background:var(--bordeaux);border-color:var(--bordeaux);color:var(--crema)}
+
+.likert-chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:7px}
+.likert-chip{padding:12px 8px;border-radius:var(--radius-sm);border:1.5px solid var(--line);background:var(--surface);color:var(--tinta-60);font-family:var(--sans);font-weight:400;font-size:12.5px;text-align:center;cursor:pointer;transition:all .18s;line-height:1.35}
+.likert-chip:hover{border-color:var(--line-strong);color:var(--tinta)}
+.likert-chip.selected{background:var(--bordeaux);border-color:var(--bordeaux);color:var(--crema)}
+
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.option-card{position:relative;padding:14px;border-radius:var(--radius);border:1.5px solid var(--line);background:var(--surface);cursor:pointer;transition:all .18s}
+.option-card:hover{border-color:var(--line-strong)}
+.option-card .card-title{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--tinta);margin-bottom:2px;line-height:1.4}
+.option-card .card-sub{font-size:11px;color:var(--tinta-60);line-height:1.35}
+.option-card.selected{background:var(--bordeaux);border-color:var(--bordeaux)}
+.option-card.selected .card-title,.option-card.selected .card-sub{color:var(--crema)}
+.option-card.selected::after{content:"";position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;background:var(--naranja);border:2.5px solid var(--crema)}
+
+.text-input{width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--tinta);font-family:var(--sans);font-weight:400;font-size:15px;padding:13px 16px;outline:none;transition:border-color .18s}
+.text-input:focus{border-color:var(--bordeaux)}
+.text-input::placeholder{color:var(--tinta-40)}
+.text-input:disabled{opacity:.45}
+textarea.text-input{min-height:100px;resize:vertical;line-height:1.5}
+.money-wrap{position:relative}
+.money-pre{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--tinta-60);font-size:15px;pointer-events:none}
+.money-wrap .text-input{padding-left:34px}
+
+/* A/B bipolar */
+.bip{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:14px 14px 12px}
+.bip-ends{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+.bip-end{font-size:13px;line-height:1.42;color:var(--tinta);font-weight:400}
+.bip-end.right{text-align:right}
+.bip-tag{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--panel);border:1px solid var(--line-strong);font-size:10px;font-weight:500;color:var(--tinta-60);vertical-align:1px}
+.bip-end .bip-tag{margin-right:6px}
+.bip-end.right .bip-tag{margin:0 0 0 6px}
+.bip-scale{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.bip-opt{padding:9px 4px;border-radius:var(--radius-sm);border:1.5px solid var(--line);background:var(--crema);color:var(--tinta-60);font-size:11.5px;text-align:center;cursor:pointer;transition:all .16s;line-height:1.25;user-select:none}
+.bip-opt:hover{border-color:var(--line-strong);color:var(--tinta)}
+.bip-opt.side-a{border-color:rgba(187,90,60,.55);color:var(--teja)}
+.bip-opt.side-b{border-color:rgba(60,90,110,.55);color:var(--indigo)}
+.bip-opt.side-a.strong{background:rgba(187,90,60,.12)}
+.bip-opt.side-b.strong{background:rgba(60,90,110,.12)}
+.bip-opt.side-a:hover{border-color:var(--teja)}
+.bip-opt.side-b:hover{border-color:var(--indigo)}
+.bip-opt.side-a.strong.selected{background:var(--teja);border-color:var(--teja);color:#fff}
+.bip-opt.side-a.soft.selected{background:#D39878;border-color:#D39878;color:#fff}
+.bip-opt.side-b.strong.selected{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.bip-opt.side-b.soft.selected{background:var(--agua);border-color:var(--agua);color:#fff}
+.bip-end .bip-tag{background:rgba(187,90,60,.14);border-color:var(--teja);color:var(--teja)}
+.bip-end.right .bip-tag{background:rgba(60,90,110,.14);border-color:var(--indigo);color:var(--indigo)}
+
+/* Grilla (fila x columnas) */
+.grid-q{display:flex;flex-direction:column;gap:8px}
+.grid-row{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.grid-lab{font-size:13px;color:var(--tinta);flex:1 1 180px;line-height:1.4}
+.grid-opts{display:flex;gap:6px}
+.grid-opt{padding:7px 12px;border-radius:var(--r-pill);border:1.5px solid var(--line);background:var(--crema);font-size:12px;color:var(--tinta-60);cursor:pointer;user-select:none;transition:all .16s}
+.grid-opt.selected{background:var(--bordeaux);border-color:var(--bordeaux);color:var(--crema)}
+.q-block.error .grid-row{border-color:var(--teja)}
+/* Grilla de importancia con color por respuesta */
+.gcol .grid-opt{font-weight:600}
+@media (max-width:400px){.gcol .grid-opt{font-size:11px}}
+@media (max-width:360px){.gcol .grid-opt{font-size:10px}}
+.gcol .grid-opt[data-c="2"]{border-color:rgba(36,71,40,.5);color:#244728;background:rgba(36,71,40,.06)}
+.gcol .grid-opt[data-c="1"]{border-color:rgba(217,154,51,.6);color:#A87314;background:rgba(217,154,51,.07)}
+.gcol .grid-opt[data-c="0"]{border-color:rgba(64,64,62,.45);color:#40403E;background:rgba(64,64,62,.05)}
+.gcol .grid-opt[data-c="2"]:hover{border-color:#244728}
+.gcol .grid-opt[data-c="1"]:hover{border-color:#D99A33}
+.gcol .grid-opt[data-c="0"]:hover{border-color:#40403E}
+.gcol .grid-opt[data-c="2"].selected{background:#244728;border-color:#244728;color:#fff}
+.gcol .grid-opt[data-c="1"].selected{background:#D99A33;border-color:#D99A33;color:#fff}
+.gcol .grid-opt[data-c="0"].selected{background:#40403E;border-color:#40403E;color:#fff}
+.gcol .grid-row:has(.selected){border-color:var(--line-strong)}
+.grid-q.grid3 .grid-row{flex-direction:column;align-items:stretch;gap:8px}
+.grid-q.grid3 .grid-lab{flex:none}
+.grid-q.grid3 .grid-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.grid-q.grid3 .grid-opt{text-align:center;white-space:nowrap;padding:8px 2px;font-size:11.5px;letter-spacing:-.01em}
+@media (max-width:360px){.grid-q.grid3 .grid-opt{font-size:10.5px}}
+
+/* Zona de referencia */
+.zona{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--naranja);border-radius:var(--radius);padding:18px 18px 14px;margin-bottom:22px}
+.zona-map{height:340px;border-radius:var(--radius-sm);border:1px solid var(--line);margin:12px 0 10px;background:var(--panel);position:relative;z-index:0}
+.zona-map:empty::before{content:"Cargando el mapa…";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--tinta-60)}
+.zona-hint{font-size:11px;color:var(--tinta-60);margin-bottom:10px;line-height:1.5}
+.leaflet-container{font-family:var(--sans)}
+.leaflet-tooltip.zona-tip{background:var(--crema);border:1px solid var(--tinta);color:var(--tinta);font-size:11px;font-weight:500;padding:3px 7px;border-radius:6px;box-shadow:none;line-height:1.3}
+.leaflet-tooltip.zona-tip::before{display:none}
+.leaflet-tooltip.zona-lbl{background:transparent;border:none;box-shadow:none;color:var(--naranja);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 0 4px #fff,0 0 4px #fff}
+.leaflet-tooltip.zona-lbl::before{display:none}
+.leaflet-control-zoom a{color:var(--tinta)}
+.leaflet-control-attribution{font-size:9px;background:rgba(255,255,255,.7)}
+.zona-tag{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--bordeaux);font-weight:500;margin-bottom:8px}
+.zona-lead{font-family:var(--serif);font-size:19px;line-height:1.3;color:var(--tinta);margin-bottom:10px}
+.zona-refs{display:flex;flex-wrap:wrap;gap:6px}
+.zona-refs span{font-size:12px;padding:5px 11px;border-radius:var(--r-pill);background:var(--panel);color:var(--tinta);border:1px solid var(--line-strong)}
+
+.nav-buttons{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:620px;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:var(--crema-70);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;gap:10px;z-index:99}
+@media (max-width:620px){.nav-buttons{left:0;transform:none}}
+.btn-prev{flex:1;padding:14px;border-radius:var(--radius-sm);background:transparent;border:1.5px solid var(--line);color:var(--tinta-60);font-family:var(--sans);font-size:13px;transition:all .18s}
+.btn-prev:hover{border-color:var(--bordeaux);color:var(--bordeaux)}
+.btn-next{flex:2;padding:14px;border-radius:var(--radius-sm);background:var(--carbon);border:1.5px solid var(--carbon);color:var(--crema);font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:.02em;transition:all .18s}
+.btn-next::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--naranja);margin-right:10px;vertical-align:middle;transition:transform .25s}
+.btn-next:hover{background:#2A2E18}
+.btn-next:hover::before{transform:translateX(3px)}
+.btn-next.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+.filter-card,.exit-card{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:40px 26px;text-align:center;position:relative;overflow:hidden}
+.filter-card::before,.exit-card::before{content:"";position:absolute;width:200px;height:200px;border:1px solid var(--line);border-radius:50%;right:-84px;top:-74px;opacity:.7;pointer-events:none}
+.filter-icon{font-size:38px;margin-bottom:16px;position:relative}
+.filter-title{font-family:var(--serif);font-weight:400;font-size:24px;color:var(--tinta);margin-bottom:12px;position:relative}
+.filter-text{font-family:var(--sans);font-weight:300;font-size:14.5px;color:var(--tinta-60);line-height:1.6;margin-bottom:26px;position:relative}
+.filter-text strong{color:var(--tinta);font-weight:500}
+.btn-filter-yes{width:100%;padding:15px;border-radius:var(--radius-sm);background:var(--carbon);border:1.5px solid var(--carbon);color:var(--crema);font-family:var(--sans);font-size:14.5px;font-weight:500;margin-bottom:10px;transition:all .18s;position:relative}
+.btn-filter-yes::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--naranja);margin-right:10px;vertical-align:middle}
+.btn-filter-yes:hover{background:#2A2E18}
+.btn-filter-alt{width:100%;padding:14px;border-radius:var(--radius-sm);background:var(--panel);border:1.5px solid var(--line-strong);color:var(--tinta);font-family:var(--sans);font-size:13.5px;margin-bottom:10px;transition:all .18s;position:relative}
+.btn-filter-alt:hover{border-color:var(--bordeaux)}
+.btn-filter-no{width:100%;padding:13px;border-radius:var(--radius-sm);background:transparent;border:1.5px solid var(--line);color:var(--tinta-60);font-family:var(--sans);font-size:13.5px;transition:all .18s;position:relative;margin-bottom:10px}
+.btn-filter-no:hover{border-color:var(--bordeaux);color:var(--bordeaux)}
+.exit-icon{font-size:44px;margin-bottom:16px;position:relative;display:inline-flex;align-items:center;justify-content:center}
+
+.welcome-hero{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:44px 28px 34px;text-align:center;position:relative;overflow:hidden;margin-bottom:18px}
+.welcome-hero::before{content:'';position:absolute;width:260px;height:260px;border:1px solid var(--line);border-radius:50%;right:-110px;top:-96px;opacity:.7}
+.welcome-hero::after{content:'';position:absolute;width:14px;height:14px;background:var(--naranja);border-radius:50%;right:36px;top:30px}
+.welcome-logo-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:6px;position:relative}
+.welcome-mark{width:60px;height:60px;border:2.4px solid var(--tinta);border-radius:50%;position:relative;margin-bottom:18px}
+.welcome-mark::after{content:'';position:absolute;width:14px;height:14px;background:var(--bordeaux);border-radius:50%;top:-4px;right:4px}
+.welcome-logo{font-family:var(--sans);font-weight:500;font-size:34px;letter-spacing:-.02em;color:var(--tinta);line-height:1}
+.welcome-sub-name{font-family:var(--sans);font-weight:400;font-size:8px;letter-spacing:.44em;text-transform:uppercase;color:var(--tinta-60);margin-top:8px}
+.welcome-tagline{font-family:var(--sans);font-weight:300;font-size:14.5px;color:var(--tinta-60);margin:20px auto 22px;line-height:1.55;max-width:400px;position:relative}
+.welcome-ola-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border-radius:var(--r-pill);background:rgba(226,88,31,.10);border:1px solid rgba(226,88,31,.5);font-family:var(--sans);font-weight:400;font-size:10.5px;color:var(--naranja);letter-spacing:.14em;text-transform:uppercase;margin-bottom:26px}
+.welcome-ola-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--naranja)}
+.welcome-meta{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin-bottom:22px;padding-top:22px;border-top:1px solid var(--line)}
+.welcome-meta-item{text-align:center}
+.welcome-meta-item .val{font-family:var(--serif);font-weight:400;font-size:22px;color:var(--tinta)}
+.welcome-meta-item .lbl{font-family:var(--sans);font-weight:400;font-size:9.5px;color:var(--tinta-60);margin-top:3px;letter-spacing:.14em;text-transform:uppercase}
+.welcome-sorteo{background:var(--panel);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--tinta);line-height:1.5;margin-bottom:22px;text-align:left}
+.welcome-sorteo b{font-weight:500}
+.btn-start{width:100%;padding:17px;border-radius:var(--radius-sm);background:var(--carbon);border:1.5px solid var(--carbon);color:var(--crema);font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.02em;cursor:pointer;margin-bottom:14px;transition:all .2s;position:relative}
+.btn-start::before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--naranja);margin-right:11px;vertical-align:middle}
+.btn-start:hover{background:#2A2E18;transform:translateY(-1px)}
+.privacy-note{font-family:var(--sans);font-weight:400;font-size:10.5px;color:var(--tinta-60);text-align:center;line-height:1.6;letter-spacing:.02em}
+
+.thanks-wrap{text-align:center;padding:24px 0}
+.check-anim{width:74px;height:74px;border-radius:50%;background:rgba(81,105,79,.12);border:2px solid var(--oliva);color:var(--oliva);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:32px;animation:pop .4s ease}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.thanks-title{font-family:var(--serif);font-weight:400;font-size:28px;color:var(--tinta);margin-bottom:10px}
+.thanks-sub{font-family:var(--sans);font-weight:300;font-size:14px;color:var(--tinta-60);line-height:1.65;margin:0 auto 24px;max-width:460px}
+.result-promise{background:var(--surface);border:1px solid var(--bordeaux);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;text-align:left}
+.result-promise p{font-size:13px;color:var(--tinta);line-height:1.6}
+.result-promise strong{color:var(--bordeaux);font-weight:500}
+.thanks-ola-meta{font-family:var(--sans);font-weight:400;font-size:9.5px;color:var(--tinta-60);letter-spacing:.18em;text-transform:uppercase;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.btn-dark{width:100%;padding:13px;border-radius:var(--radius);background:var(--carbon);border:none;color:var(--crema);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer}
+.ok-msg{font-size:11px;color:var(--oliva);margin-top:8px;display:none;letter-spacing:.04em}
+.consent-check{display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--tinta-60);line-height:1.5;margin:6px 0 12px;text-align:left}
+.consent-check input{margin-top:3px;accent-color:var(--bordeaux)}
+.share-block{margin:20px 0 8px;padding:20px 18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);text-align:center}
+.share-text{font-family:var(--sans);font-weight:400;font-size:14.5px;color:var(--tinta);margin-bottom:14px;line-height:1.4}
+.share-btn{display:inline-flex;align-items:center;gap:9px;padding:12px 24px;border-radius:var(--r-pill);background:rgba(67,18,23,.06);border:1.5px solid var(--bordeaux);color:var(--bordeaux);font-family:var(--sans);font-weight:500;font-size:14px;cursor:pointer;transition:all .18s}
+.share-btn:hover{background:var(--bordeaux);color:var(--crema)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(30,34,16,.6);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;width:100%;max-width:560px;max-height:85vh;overflow:auto;padding:24px}
+.modal-title{font-family:var(--serif);font-weight:500;font-size:19px;color:var(--tinta);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--tinta-60);font-size:22px;cursor:pointer}
+.admin-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.admin-kpi{background:var(--panel);border-radius:var(--radius-sm);padding:12px;text-align:center}
+.admin-kpi .v{font-family:var(--serif);font-weight:400;font-size:24px;color:var(--tinta)}
+.admin-kpi .l{font-family:var(--sans);font-size:10px;color:var(--tinta-60);margin-top:2px;letter-spacing:.05em}
+.admin-table-wrap{overflow-x:auto;margin-bottom:16px}
+.admin-table{width:100%;border-collapse:collapse;font-size:12px}
+.admin-table th{background:var(--panel);padding:8px 10px;text-align:left;color:var(--tinta-60);font-weight:400;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--line-strong)}
+.admin-table td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--tinta)}
+.admin-btns{display:flex;gap:8px;flex-wrap:wrap}
+.admin-btn{padding:9px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--line);background:var(--panel);color:var(--tinta-60);font-size:12px;cursor:pointer;transition:all .15s}
+.admin-btn:hover{color:var(--tinta);border-color:var(--tinta)}
+.admin-btn.danger{border-color:var(--teja);color:var(--teja)}
+.admin-pw{width:100%;background:var(--crema);border:1.5px solid var(--line);border-radius:var(--radius-sm);color:var(--tinta);font-size:15px;padding:12px 16px;outline:none;margin-bottom:10px}
+.btn-admin-login{width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--carbon);border:none;color:var(--crema);font-size:14px;font-weight:500;cursor:pointer}
+
+.q-error{font-family:var(--sans);font-weight:400;font-size:11px;color:var(--teja);margin-top:8px;display:none;letter-spacing:.02em}
+.q-block.error .q-error{display:block}
+.q-block.error .chip,.q-block.error .likert-chip,.q-block.error .option-card,.q-block.error .bip,.q-block.error .text-input{border-color:var(--teja)!important}
+
+/* Vista previa */
+body.preview #app{padding-top:112px}
+#pv-bar{position:fixed;top:63px;left:0;right:0;z-index:98;display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--carbon);color:var(--crema)}
+#pv-bar .pv-tag{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--naranja);white-space:nowrap}
+#pv-bar select{flex:1;min-width:0;background:#2A2E18;color:var(--crema);border:1px solid rgba(244,238,227,.25);border-radius:6px;padding:7px 8px;font-family:var(--sans);font-size:12.5px}
+#pv-bar button{width:32px;height:32px;flex:none;border-radius:50%;border:1px solid rgba(244,238,227,.3);background:transparent;color:var(--crema);font-size:16px;line-height:1}
+@media (max-width:430px){#pv-bar .pv-tag{display:none}}
+.pv-cond{display:inline-block;font-size:10.5px;letter-spacing:.03em;background:rgba(226,88,31,.08);color:#B4461A;border:1px dashed rgba(226,88,31,.55);border-radius:6px;padding:3px 8px;margin-bottom:8px;line-height:1.4}
+
+@media (max-width:430px){
+  .likert-chips{grid-template-columns:repeat(2,1fr)}
+  .cards-grid{grid-template-columns:1fr}
+  .welcome-meta{gap:18px}
+  .header-meta{font-size:8.5px;letter-spacing:.12em}
+  .bip-opt{font-size:10.5px}
+}
+/* ===== Versión de prueba ===== */
+.tester-pill{display:none;font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;color:var(--crema);background:var(--naranja);border-radius:var(--r-pill);padding:3px 9px;white-space:nowrap}
+body.tester .tester-pill{display:inline-block}
+.tester-card{display:none;background:var(--carbon);color:var(--crema);border-radius:18px;padding:22px 20px 20px;margin-bottom:14px;text-align:left;position:relative;overflow:hidden}
+body.tester .tester-card{display:block}
+.tester-card::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:var(--naranja);right:20px;top:22px}
+.tester-tag{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--naranja);font-weight:500;margin-bottom:10px}
+.tester-title{font-family:var(--serif);font-size:23px;line-height:1.2;margin-bottom:10px;padding-right:24px}
+.tester-card p{font-size:13.5px;line-height:1.55;color:rgba(244,238,227,.86);margin-bottom:9px}
+.tester-card p b{color:var(--crema);font-weight:500}
+.tester-card ul{margin:4px 0 10px 18px;padding:0}
+.tester-card li{font-size:13px;line-height:1.5;color:rgba(244,238,227,.86);margin-bottom:5px}
+.tester-thanks{font-family:var(--serif);font-style:italic;font-size:15px;color:var(--crema)!important;margin:10px 0 0!important}
+.blk-obs{margin:6px 0 0;border-top:1px dashed var(--line-strong);padding-top:12px}
+.blk-obs summary{cursor:pointer;font-size:12.5px;color:var(--bordeaux);font-weight:500;list-style:none}
+.blk-obs summary::-webkit-details-marker{display:none}
+.blk-obs summary::before{content:'✎ '}
+.blk-obs textarea{margin-top:10px;min-height:80px;font-size:13.5px}
+.blk-obs .q-note{margin:6px 0 0}
+.ev-intro{background:var(--carbon);color:var(--crema);border-radius:var(--radius);padding:14px 16px;font-size:13px;line-height:1.5;margin-bottom:22px}
+.ev-intro b{color:var(--naranja);font-weight:500}
+.ev-scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--tinta-60);margin:-4px 0 8px;letter-spacing:.02em}
+.tester-extra{display:none;margin:22px 0 8px;padding:18px;background:var(--surface);border:1.5px dashed var(--naranja);border-radius:var(--radius);text-align:left}
+body.tester .tester-extra{display:block}
+.tester-extra .q-label{margin-bottom:8px}
+body.tester .share-block{display:none}
+</style>
+</head>
+<body>
+
+<div id="progress-bar-wrap"><div id="progress-bar-fill" style="width:0%"></div></div>
+
+<header id="app-header">
+  <div class="header-logo" id="logo-click">
+    <span class="logo-mark"></span>
+    <span class="logo-text">periferia</span>
+  </div>
+  <div class="header-meta" id="header-meta-ola">VIVIR EN CÓRDOBA · 2026 <span class="tester-pill">Prueba</span></div>
+  <div class="header-case" id="case-display"></div>
+</header>
+
+<div id="app">
+
+<!-- WELCOME -->
+<div id="screen-welcome" class="screen active">
+  <div class="tester-card">
+    <div class="tester-tag">Versión de prueba</div>
+    <div class="tester-title">Te elegimos para poner a prueba esta encuesta</div>
+    <p>Si te llegó este link, es porque te seleccionamos especialmente para <b>criticar el instrumento</b> antes de que salga al público.</p>
+    <p>Respondela como si fuera la versión final, <b>de manera consciente y crítica</b>:</p>
+    <ul>
+      <li>Contestá con tu situación real. Tus respuestas no se usan en el estudio.</li>
+      <li>Fijate qué se entiende, qué confunde, qué falta y qué sobra.</li>
+      <li>Al pie de cada bloque podés anotar un comentario sobre esa pantalla.</li>
+      <li>Al final vas a encontrar un apartado para <b>puntuar la encuesta y dejar tus observaciones</b>.</li>
+    </ul>
+    <p>El sorteo y los datos de contacto son parte de la versión final: en esta prueba son opcionales.</p>
+    <p class="tester-thanks">Agradecemos mucho tu colaboración.</p>
+  </div>
+  <div class="welcome-hero">
+    <div class="welcome-logo-wrap">
+      <div class="welcome-mark"></div>
+      <div class="welcome-logo">periferia</div>
+      <div class="welcome-sub-name">Consultora</div>
+    </div>
+    <div class="welcome-tagline">Estudio sobre cómo viven y cómo quieren vivir las personas de 25 a 35 años en Córdoba. Queremos conocer tu situación actual y lo que buscás para tu próxima vivienda.</div>
+    <div class="welcome-ola-badge" id="welcome-badge">Encuesta 2026</div>
+    <div class="welcome-meta">
+      <div class="welcome-meta-item"><div class="val">~10 min</div><div class="lbl">duración</div></div>
+      <div class="welcome-meta-item"><div class="val">Anónima</div><div class="lbl">confidencial</div></div>
+    </div>
+    <div class="welcome-sorteo">Entre quienes completen la encuesta <b>realizamos un sorteo</b>. Al terminar podés dejar un contacto para participar. Ese contacto se guarda por separado de tus respuestas.</div>
+    <button class="btn-start" onclick="startSurvey()">Empezar encuesta</button>
+    <p class="privacy-note">Respuestas confidenciales · Análisis agregado · Uso exclusivo de investigación</p>
+  </div>
+</div>
+
+<!-- FILTER F1: lugar -->
+<div id="screen-f1" class="screen">
+  <div class="filter-card">
+    <div class="filter-icon">📍</div>
+    <div class="filter-title">Antes de empezar</div>
+    <div class="filter-text">¿Vivís en <strong>Córdoba capital o Gran Córdoba</strong>?</div>
+    <button class="btn-filter-yes" onclick="filterAnswer('f1','si')">Sí, vivo en Córdoba</button>
+    <button class="btn-filter-alt" onclick="filterAnswer('f1','mudanza')">Todavía no, pero me mudo a Córdoba en el próximo año</button>
+    <button class="btn-filter-no" onclick="filterAnswer('f1',null)">No</button>
+  </div>
+</div>
+
+
+<!-- CONSENT -->
+<div id="screen-consent" class="screen">
+  <div class="filter-card">
+    <div class="filter-icon">🔒</div>
+    <div class="filter-title">Tu privacidad</div>
+    <div class="filter-text">La encuesta es <strong>anónima</strong>: no registra tu nombre ni datos que te identifiquen. Para evitar respuestas duplicadas registramos datos técnicos del dispositivo, también de forma anónima. Si al final dejás un contacto para el sorteo, se guarda por separado de tus respuestas. Los datos se analizan de forma agregada y solo con fines de investigación (Ley 25.326 de Protección de Datos Personales).<br><br>¿Aceptás participar?</div>
+    <button class="btn-filter-yes" onclick="filterAnswer('consent','si')">Sí, quiero participar</button>
+    <button class="btn-filter-no" onclick="filterAnswer('consent',null)">No, prefiero no participar</button>
+  </div>
+</div>
+
+<!-- EXIT -->
+<div id="screen-exit" class="screen">
+  <div class="exit-card">
+    <div class="exit-icon">🙏</div>
+    <div class="filter-title">Gracias igual</div>
+    <p style="font-size:14px;color:var(--tinta-60);line-height:1.65;margin-top:8px;font-weight:300">Esta encuesta está dirigida a personas que viven o van a vivir en Córdoba. Si conocés a alguien que cumpla esa condición, podés compartirla.</p>
+  </div>
+</div>
+
+<!-- SECCIONES (se construyen por JS a partir de SECTIONS) -->
+<div id="sections-root"></div>
+
+<!-- THANKS -->
+<div id="screen-thanks" class="screen">
+  <div class="thanks-wrap">
+    <div class="check-anim">✓</div>
+    <div class="thanks-title">Gracias por participar</div>
+    <p class="thanks-sub">Tu respuesta quedó registrada. Nos ayuda a entender cómo se vive y cómo se quiere vivir en Córdoba.</p>
+    <div class="result-promise">
+      <p><strong>Sorteo.</strong> Para participar, dejá un email o un teléfono. Lo usamos solo para avisarte si ganás. <span id="sorteo-fecha"></span></p>
+    </div>
+    <div id="thanks-contact-section" style="margin-bottom:24px;text-align:left">
+      <input type="email" class="text-input" id="thanks-email" placeholder="tu@email.com" style="margin-bottom:8px">
+      <input type="tel" class="text-input" id="thanks-phone" placeholder="+54 351 ... (teléfono · opcional)" style="margin-bottom:8px">
+      <label class="consent-check"><input type="checkbox" id="thanks-resultados" checked> <span>Quiero recibir un resumen de los resultados cuando se publique.</span></label>
+      <label class="consent-check"><input type="checkbox" id="thanks-entrevista"> <span>Acepto que me contacten para una <b>charla o entrevista breve</b> sobre este tema. Si lo marcás, podemos vincular tus respuestas con tu contacto solo para invitarte.</span></label>
+      <button class="btn-dark" onclick="saveContact()">Participar del sorteo</button>
+      <p id="contact-saved-msg" class="ok-msg">✓ Listo, ya estás participando.</p>
+      <p id="contact-error-msg" class="q-error" style="display:none">Dejá un email válido o un teléfono.</p>
+    </div>
+    <div class="tester-extra">
+      <div class="q-label">¿Algo más que quieras contarnos sobre la encuesta?</div>
+      <textarea class="text-input" id="tester-extra-txt" placeholder="Cualquier comentario suma: lo que te gustó, lo que cambiarías, lo que te hizo dudar…"></textarea>
+      <button class="btn-dark" style="margin-top:10px" onclick="saveTesterExtra()">Enviar comentario</button>
+      <p id="tester-extra-msg" class="ok-msg">✓ Recibido. ¡Gracias!</p>
+    </div>
+    <div class="share-block">
+      <p class="share-text">¿Conocés a alguien de 25 a 35 años en Córdoba?</p>
+      <button type="button" class="share-btn" onclick="compartirEncuesta()"><span>🔗</span><span>Compartí la encuesta</span></button>
+      <p id="share-copied-msg" class="ok-msg">✓ Link copiado al portapapeles</p>
+    </div>
+    <div class="thanks-ola-meta" id="thanks-meta" style="margin-top:28px"></div>
+  </div>
+</div>
+
+<!-- CUOTA CUMPLIDA -->
+<div id="screen-closed" class="screen">
+  <div class="exit-card">
+    <div class="exit-icon" style="color:var(--bordeaux)">✓</div>
+    <div class="filter-title" style="color:var(--bordeaux)">Recolección cerrada</div>
+    <p style="font-size:14px;color:var(--tinta-60);line-height:1.65;margin-top:10px;margin-bottom:18px;font-weight:300">Alcanzamos la cantidad de respuestas necesaria para este estudio. <strong style="color:var(--tinta);font-weight:500">Gracias por tu interés.</strong></p>
+  </div>
+</div>
+
+<!-- ALREADY RESPONDED -->
+<div id="screen-already" class="screen">
+  <div class="exit-card">
+    <div class="exit-icon">✓</div>
+    <div class="filter-title" style="color:var(--oliva)">Ya respondiste esta encuesta</div>
+    <p style="font-size:14px;color:var(--tinta-60);line-height:1.65;margin-top:10px;font-weight:300">Tu participación quedó registrada desde este dispositivo. <strong style="color:var(--tinta);font-weight:500">Gracias.</strong></p>
+  </div>
+</div>
+
+</div><!-- end app -->
+
+<div class="nav-buttons" id="nav-buttons" style="display:none">
+  <button class="btn-prev" id="btn-prev" onclick="navigate(-1)">← Anterior</button>
+  <button class="btn-next" id="btn-next" onclick="navigate(1)">Siguiente →</button>
+</div>
+
+<!-- ADMIN MODAL (doble click en el logo) -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span>Panel Periferia <span style="color:var(--bordeaux)">· Admin</span></span>
+      <button class="modal-close" onclick="closeAdmin()">×</button>
+    </div>
+    <div id="admin-login-view">
+      <p style="font-size:13px;color:var(--tinta-60);margin-bottom:12px">Ingresá la contraseña para acceder.</p>
+      <input type="password" class="admin-pw" id="admin-pw" placeholder="Contraseña" onkeydown="if(event.key==='Enter')adminLogin()">
+      <button class="btn-admin-login" onclick="adminLogin()">Ingresar</button>
+      <p style="font-size:11px;color:var(--bordeaux);margin-top:8px;display:none" id="admin-error">Contraseña incorrecta.</p>
+    </div>
+    <div id="admin-data-view" style="display:none">
+      <div class="admin-kpis" id="admin-kpis"></div>
+      <div class="admin-table-wrap" id="admin-table-wrap"></div>
+      <div class="admin-btns">
+        <button class="admin-btn" onclick="exportCSV()">Exportar CSV</button>
+        <button class="admin-btn" onclick="exportJSON()">Exportar JSON</button>
+        <button class="admin-btn danger" onclick="clearData()">Limpiar datos</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const FORCE_PREVIEW = false;       // true = vista previa (sin validaciones, sin guardar, con todas las condicionales visibles).
+const MODO = 'tester';             // 'tester' = versión de prueba (aviso en portada, comentario por bloque y evaluación final). 'final' = encuesta de campo.
+const TESTER = MODO === 'tester';
+const PREVIEW = FORCE_PREVIEW || new URLSearchParams(location.search).get('preview') === '1';
+const ESTUDIO_COD = 'VC';            // Código neutro para todo lo público.
+const OLA_ACTUAL = '01';
+const OLA_FECHA = 'Noviembre 2026';  // ⚠ ajustar a la fecha real de campo
+const SORTEO_FECHA = '';             // ⚠ ej. 'El sorteo se realiza el 15 de diciembre de 2026.' (vacío = no se muestra)
+const CUOTA_CERRADA = false;         // true cuando se alcanzan los 200 casos
+const OLA_KEY_SUFFIX = ESTUDIO_COD.toLowerCase() + '_ola_' + OLA_ACTUAL + (TESTER ? '_tester' : '');   // la prueba no bloquea la encuesta final en el mismo dispositivo
+const APPS_SCRIPT_URL = 'REEMPLAZAR_CON_TU_URL_DE_APPS_SCRIPT'; // ⚠ endpoint de Google Sheets
+const ADMIN_PW = '';   // vista previa: panel deshabilitado
+const COMPLETED_KEY = 'periferia_completed_' + OLA_KEY_SUFFIX;
+const STORAGE_PREFIX = 'periferia_' + OLA_KEY_SUFFIX + ':';
+const CONTACT_PREFIX = 'periferia_contact_' + OLA_KEY_SUFFIX + ':';
+
+// Tramos de ingreso personal neto mensual (definidos con el cliente) y valor medio usado como referencia
+// para traducir porcentajes a montos. ⚠ Revisar los valores medios al momento del campo.
+const INGRESO_TRAMOS = [
+  ['i1','Menos de $700.000', 550000],
+  ['i2','Entre $700.000 y $1.000.000', 850000],
+  ['i3','Entre $1.000.000 y $1.400.000', 1200000],
+  ['i4','Entre $1.400.000 y $1.800.000', 1600000],
+  ['i5','Entre $1.800.000 y $2.200.000', 2000000],
+  ['i6','Más de $2.200.000', 2600000],
+];
+const INGRESO_MEDIO = Object.fromEntries(INGRESO_TRAMOS.map(([v,,m])=>[v,m]));
+// Bandas de porcentaje del ingreso destinado al pago total de la vivienda
+const PCT_BANDAS = [
+  ['p20','Hasta el 20 %', 0, 20], ['p30','Entre el 20 y el 30 %', 20, 30], ['p40','Entre el 30 y el 40 %', 30, 40],
+  ['p50','Entre el 40 y el 50 %', 40, 50], ['p50m','Más del 50 %', 50, null],
+];
+
+// Mapa de la zona de referencia (Leaflet). La zona se dibuja como polígono, sin marcador en el centro.
+// Mapa base: con MAPTILER_KEY usa el mapa «Streets» de MapTiler (cuenta gratuita en maptiler.com → API keys).
+// Sin clave usa OpenStreetMap estándar, que funciona sin registro pero se ve más cargado.
+const MAPTILER_KEY = '9uBxSeGTqKywakPpYrfK';   // clave de MapTiler (restringirla al dominio de la encuesta antes del campo)
+// ⚠ Verificar en Google Maps las coordenadas de los puntos de referencia antes del campo.
+const ZONA_ZOOM = 14;                       // zoom de partida; después se ajusta para que entren la zona y las referencias
+const ZONA_ZOOM_MIN = 12, ZONA_ZOOM_MAX = 16;
+// La zona se muestra como un círculo. Su radio es un 20 % mayor que el de un círculo de igual superficie que el polígono
+// original de la zona (≈ 377 m → 450 m). El centro está desplazado unos 150 m del terreno para que no se deduzca su ubicación exacta.
+const ZONA_CIRCULO = { centro:[-31.456813, -64.195394], radio:450 };
+const ZONA_REFERENCIAS = [                  // ⚠ coordenadas aproximadas · d = lado de la etiqueta
+  { n:'Ciudad Universitaria', c:[-31.4392, -64.1893], d:'top' },
+  { n:'Jockey', c:[-31.4565, -64.1864], d:'bottom' },
+  { n:'Athletic', c:[-31.4640, -64.1800], d:'right' },   // ⚠ ubicación aproximada: verificar
+  { n:'Paseo del Jockey', c:[-31.4546, -64.1864], d:'right' },
+  { n:'Hospital Privado', c:[-31.4455, -64.1790], d:'right' },
+  { n:'Quality Espacio', c:[-31.4428, -64.1922], d:'left' },
+];
+
+// Calidad de respuesta (no bloquea: se marca para depurar la base)
+const MIN_SECS = 240;        // menos de 4 minutos → q_rapido = 1
+
+// ============================================================
+// HELPERS
+// ============================================================
+const O = (v, t, s) => ({ v, t, s: s || '' });
+const fmt = n => '$ ' + Math.round(n).toLocaleString('es-AR');
+const r5 = n => Math.round(n / 5000) * 5000;
+function shuffle(arr){ for (let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function generateUUID(){ return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&0x3|0x8)).toString(16);}); }
+function getUTMParams(){
+  const p = new URLSearchParams(window.location.search);
+  return { utm_source:p.get('utm_source')||'directo', utm_campaign:p.get('utm_campaign')||'', utm_content:p.get('utm_content')||'', utm_medium:p.get('utm_medium')||'', utm_term:p.get('utm_term')||'' };
+}
+function yaRespondio(){
+  try { if (localStorage.getItem(COMPLETED_KEY) === '1') return true; } catch(e){}
+  return document.cookie.split('; ').includes(COMPLETED_KEY + '=1');
+}
+function marcarRespondido(){
+  try { localStorage.setItem(COMPLETED_KEY, '1'); } catch(e){}
+  document.cookie = COMPLETED_KEY + '=1; max-age=' + (60*60*24*120) + '; path=/; SameSite=Lax';
+}
+function huella(){
+  let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e){}
+  const s = [navigator.userAgent, navigator.language, screen.width+'x'+screen.height, screen.colorDepth, tz, navigator.hardwareConcurrency||''].join('|');
+  let h = 5381; for (let i=0;i<s.length;i++) h = ((h<<5)+h+s.charCodeAt(i))|0;
+  return (h>>>0).toString(36);
+}
+const HONEYPOT = `<div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden" aria-hidden="true"><label>Sitio web<input type="text" tabindex="-1" autocomplete="off" oninput="responses.hp=this.value"></label></div>`;
+
+// Filtros de ruteo
+const TRABAJA    = r => ['priv','pub','indep','empl','otra'].includes(r.p8);
+const CON_FAMILIA= r => r.h1 === 'fam';
+const CONVIVE    = r => ['fam','alq_comp','res'].includes(r.h1);
+const INQUILINO  = r => ['alq_solo','alq_pareja','alq_comp'].includes(r.h1);
+const NO_PROP    = r => r.h1 !== 'prop';
+const SE_MUDA    = r => ['12','24','quizas'].includes(r.e0);
+const CON_INGRESO= r => r.p12 !== 'sin';
+const UBICA_ZONA = r => ['bien','algo','ubica'].includes(r.u6);
+
+const LIK_ACUERDO = [O('5','Muy de acuerdo'),O('4','De acuerdo'),O('3','Ni de acuerdo ni en desacuerdo'),O('2','En desacuerdo'),O('1','Muy en desacuerdo')];
+const BIP = [O('-2','Seguramente A'),O('-1','Creo que A'),O('1','Creo que B'),O('2','Seguramente B')];
+
+// ============================================================
+// CUESTIONARIO
+// tipos: chips · likert · cards · multi (cards) · multichips · money · text · textarea · textopt
+//        bipolar · grid · principal · pct · info
+// ============================================================
+const SECTIONS = [
+{ id:'s1', title:'Tu perfil', sub:'Algunos datos para que los resultados representen bien a las personas de tu edad en Córdoba.', qs:[
+  { id:'p2', type:'number', label:'¿Cuántos años tenés?', min:18, max:99, ph:'Ej: 28', err:'Ingresá tu edad en números.' },
+  { id:'p1', type:'chips', label:'¿Cuál es tu género?', opts:[O('f','Femenino'),O('m','Masculino'),O('nb','No binario / otro'),O('nr','Prefiero no responder')] },
+  { id:'p3', type:'text', label:'¿En qué barrio vivís?', note:'Si vivís en Gran Córdoba, escribí la localidad.', ph:'Ej: General Paz', showIf:r=>r.f1==='si' },
+  { id:'p3m', type:'text', req:false, label:'¿Desde qué ciudad te mudás? <span style="color:var(--tinta-60);font-size:12px">(opcional)</span>', ph:'Ej: Río Cuarto', showIf:r=>r.f1==='mudanza' },
+  { id:'p4', type:'chips', label:'¿Sos de Córdoba o viniste de otro lugar?', opts:[O('cba','Nací o crecí en Córdoba capital'),O('int','Vine del interior de la provincia'),O('prov','Vine de otra provincia'),O('ext','Vine de otro país')] },
+  { id:'p5', type:'chips', label:'¿Hace cuánto vivís en Córdoba?', showIf:r=>r.p4 && r.p4!=='cba', opts:[O('0','Menos de 1 año / todavía no'),O('1','1 a 3 años'),O('3','3 a 10 años'),O('10','Más de 10 años')] },
+  { id:'p6', type:'chips', label:'¿Cuál es tu máximo nivel de estudios completado?', opts:[O('sec_inc','Hasta secundario incompleto'),O('sec','Secundario completo'),O('sup_inc','Terciario / universitario incompleto'),O('sup','Terciario / universitario completo'),O('pos','Posgrado')] },
+  { id:'p7', type:'chips', label:'¿Estudiás actualmente?', opts:[O('no','No'),O('grado','Sí, una carrera de grado o terciario'),O('pos','Sí, un posgrado'),O('resid','Sí, una residencia (salud u otra)'),O('curso','Sí, cursos u otra formación')] },
+  { id:'p8', type:'cards', label:'¿Cuál es tu principal ocupación o fuente de ingresos?', other:'otra', otherPh:'¿Cuál es tu situación?', opts:[
+    O('priv','Empleado/a privado','En relación de dependencia'), O('pub','Empleado/a público','Nacional, provincial o municipal'),
+    O('indep','Independiente / freelance','Sin empleados a cargo'), O('empl','Empleador / PyME','Con empleados a cargo'),
+    O('estudiante','Estudiante','Sin trabajo remunerado'), O('desocupado','Desocupado/a','Buscando trabajo'),
+    O('otra','Otra situación','Especificá') ] },
+  { id:'p9', type:'chips', label:'¿Cómo es tu modalidad de trabajo?', showIf:TRABAJA, opts:[O('presencial','Presencial todos los días'),O('hibrido','Híbrido (algunos días remoto)'),O('remoto','Remoto'),O('turnos','Por turnos / guardias'),O('movil','Me muevo, sin lugar fijo')] },
+  { id:'p11', type:'chips', label:'¿Cobrás tus ingresos en dólares o desde el exterior?', showIf:TRABAJA, opts:[O('todo','Sí, todos'),O('parte','Sí, una parte'),O('no','No')] },
+  { id:'p16', type:'chips', label:'¿Tenés auto o moto de uso habitual?', opts:[O('auto','Auto'),O('moto','Moto'),O('ambos','Auto y moto'),O('proximo','No, pero pienso tener en el próximo año'),O('no','No')] },
+]},
+
+{ id:'s2', title:'Dónde y cómo vivís hoy', sub:'Contanos cómo es tu situación de vivienda actual.', qs:[
+  { id:'h1', type:'cards', label:'¿Con quién y cómo vivís hoy?', other:'otra', opts:[
+    O('fam','Con mi familia de origen','Padres, abuelos u otros familiares'), O('alq_solo','Alquilo y vivo solo/a'),
+    O('alq_pareja','Alquilo con mi pareja'), O('alq_comp','Alquilo compartido','Con amigos o roommates'),
+    O('prop','En vivienda propia','Mía o de mi pareja'), O('prestada','En una vivienda prestada o cedida','Sin pagar alquiler'),
+    O('res','Residencia, pensión o alojamiento temporario'), O('otra','Otra situación','Especificá') ] },
+  { id:'h4', type:'multi', max:3, shuffle:true, label:'¿Qué es lo que más valorás de vivir con las personas con las que vivís hoy? Elegí <b>hasta 3</b>.', showIf:CON_FAMILIA, exclusive:['nada'], opts:[
+    O('ahorro','Ahorrar dinero'), O('compania','La compañía, no estar solo/a'), O('comida','Tener la comida y las tareas resueltas'),
+    O('espacio','El espacio y la comodidad de la casa'), O('seguridad','La seguridad'), O('cuidado','La ayuda y el cuidado mutuo'),
+    O('ubicacion','La ubicación'), O('nada','Nada en especial') ] },
+  { id:'h5', type:'multi', max:2, shuffle:true, label:'¿Qué es lo que más te afecta de la convivencia? Elegí <b>hasta 2</b>.', showIf:CONVIVE, exclusive:['nada'], opts:[
+    O('privacidad','Falta de privacidad'), O('recibir','No poder recibir gente cuando quiero'), O('ruido','Ruido: no poder descansar o concentrarme'),
+    O('conflictos','Conflictos por tareas, horarios o gastos'), O('espacio_trab','No tener un lugar propio para trabajar o estudiar'),
+    O('autonomia','Tener que dar explicaciones'), O('chico','Poco espacio'), O('nada','Nada, estoy bien así') ] },
+  { id:'h6', type:'multi', max:3, shuffle:true, label:'¿Por qué hoy no vivís por tu cuenta? Elegí <b>hasta 3</b> motivos.', showIf:CON_FAMILIA, other:'otro', opts:[
+    O('ingreso','No gano lo suficiente para mantenerme solo/a'), O('mercado','Los alquileres son inaccesibles para lo que se gana hoy'),
+    O('inestable','Mis ingresos son inestables o informales'), O('requisitos','No cumplo los requisitos','Recibo de sueldo, garantía'),
+    O('entrada','Los costos de entrada','Depósito, comisión, muebles, mudanza'), O('ahorro','Prefiero ahorrar','Para comprar u otro proyecto'),
+    O('eleccion','Elijo vivir con mi familia','Estoy bien así'), O('cuidado','Cuido o acompaño a un familiar'),
+    O('busqueda','Estoy buscando o por mudarme'), O('otro','Otro motivo','Especificá') ] },
+  { id:'h10', type:'money', label:'¿Cuánto pagás por mes, en total, por tu vivienda? Sumá <b>alquiler, expensas, servicios e internet</b> (tu parte).', note:'Un monto aproximado alcanza.', showIf:INQUILINO, skip:'Prefiero no decir' },
+  { id:'h15', type:'multi', max:3, shuffle:true, label:'¿Cuáles son los principales problemas de alquilar hoy para vos? Elegí <b>hasta 3</b>.', showIf:INQUILINO, exclusive:['ninguno'], opts:[
+    O('aumentos','Los aumentos y ajustes'), O('precio','El precio en relación con lo que es'), O('requisitos','Los requisitos y la garantía'),
+    O('trato','El trato con el dueño o la inmobiliaria'), O('mantenimiento','Los arreglos y el mantenimiento'), O('tamano','El tamaño'),
+    O('ubicacion','La ubicación'), O('inseguridad','La inseguridad'), O('facturas','Pagar muchas facturas por separado'),
+    O('ninguno','Ninguno') ] },
+  { id:'p15', type:'chips', label:'Si hoy tuvieras que alquilar, ¿contarías con una garantía?', opts:[O('prop','Sí, garantía propietaria'),O('caucion','Podría pagar un seguro de caución'),O('no','No tendría garantía'),O('ns','No sé')] },
+]},
+
+{ id:'s3', title:'Tus ingresos', sub:'Estos datos son confidenciales. Nos sirven para entender qué vivienda es posible para cada situación.', qs:[
+  { id:'p12', type:'chips', label:'¿En qué tramo está tu ingreso personal neto por mes, sumando todas tus fuentes?', note:'Neto: lo que te queda en mano. Si cobrás en dólares, calculá el equivalente en pesos.', opts:[...INGRESO_TRAMOS.map(([v,t])=>O(v,t)), O('sin','No tengo ingresos propios'), O('nr','Prefiero no responder')] },
+  { id:'p13', type:'likert', label:'Con tus ingresos, ¿cómo llegás a fin de mes?', opts:[O('ahorro','Me alcanza y puedo ahorrar'),O('justo','Me alcanza justo'),O('ayuda','No me alcanza, recibo ayuda'),O('deuda','No me alcanza y me endeudo')] },
+  { id:'p14', type:'chips', label:'¿Tu familia te ayuda con tus gastos o con la vivienda?', opts:[O('reg','Sí, todos los meses'),O('aveces','A veces'),O('no','No')] },
+  { id:'e6', type:'pct', label:'¿Qué porcentaje de tu ingreso mensual podrías destinar, como máximo, al pago total de tu vivienda (alquiler, expensas, servicios e internet)?', note:'Los montos son una referencia aproximada según el tramo de ingreso que marcaste.', showIf:CON_INGRESO },
+  { id:'e6b', type:'money', label:'Si vivieras por tu cuenta, ¿cuánto podrían pagar por mes, entre vos y quienes te ayudan, por el total de la vivienda (alquiler, expensas, servicios e internet)?', showIf:r=>r.p12==='sin', skip:'No sé' },
+]},
+
+{ id:'s4', title:'Lo que viene', sub:'Pensemos en los próximos dos años.', qs:[
+  { id:'e0', type:'chips', label:'¿Estás pensando en mudarte, alquilar o irte a vivir por tu cuenta?', opts:[O('12','Sí, en los próximos 12 meses'),O('24','Sí, en 1 a 2 años'),O('quizas','Tal vez, no lo tengo claro'),O('no','No, no lo tengo pensado')] },
+  { id:'e5', type:'cards', label:'¿Cuál sería tu próximo paso ideal en vivienda?', opts:[O('solo','Alquilar solo/a'),O('pareja','Alquilar con mi pareja'),O('comp','Alquilar compartido'),O('comprar','Comprar'),O('quedarme','Quedarme donde estoy')] },
+  { id:'e4', type:'chips', label:'¿Cuánto tiempo te imaginás viviendo en tu próxima vivienda?', showIf:SE_MUDA, opts:[O('6','Menos de 6 meses'),O('12','6 a 12 meses'),O('24','1 a 2 años'),O('60','2 a 5 años'),O('mas','Más de 5 años')] },
+  { id:'m1', type:'grid', label:'Pensando en mudarte, ¿cuánto te frena cada una de estas cosas?', showIf:SE_MUDA,
+    rows:[O('mensual','El costo mensual que voy a tener que pagar'), O('expensas','No saber cuánto van a salir las expensas y los servicios'),
+          O('encontrar','Encontrar algo que me guste y pueda pagar'), O('logistica','El tiempo y la logística de la mudanza'), O('contrato','Firmar un contrato largo')],
+    cols:[O('2','Mucho'),O('1','Algo'),O('0','Nada')] },
+  { id:'e1', type:'multichips', label:'En los próximos 12 meses, ¿cuáles de estas cosas creés que te pueden pasar?', note:'Podés marcar varias.', exclusive:['ninguna'], opts:[
+    O('trabajo','Cambiar de trabajo'), O('remoto','Pasar a trabajar remoto'), O('indep','Independizarme'), O('pareja','Irme a vivir en pareja'),
+    O('ciudad','Mudarme a otra ciudad o país'), O('estudio','Empezar un posgrado o residencia'),
+    O('ninguna','Ninguna de estas') ] },
+  { id:'h6d', type:'grid', label:'Pensando en alquilar, ¿cuánto te frena cada uno de estos costos de entrada?', showIf:NO_PROP,
+    rows:[O('deposito','El depósito y el mes de adelanto'), O('garantia','Conseguir una garantía'), O('comision','La comisión de la inmobiliaria'), O('amoblar','Amoblar y equipar la vivienda')],
+    cols:[O('2','Mucho'),O('1','Algo'),O('0','Nada')] },
+]},
+
+{ id:'s5', title:'Tus prioridades', sub:'Elegí entre dos opciones. No hay respuestas correctas: nos interesa lo que vos preferís.', qs:[
+  { id:'t1', type:'bipolar', label:'Si tuvieras que elegir, ¿qué preferís?', a:'Una cocina más grande y un baño más chico', b:'Un baño más grande y una cocina más chica' },
+  { id:'t2', type:'bipolar', label:'¿Y entre estas dos?', a:'Un espacio propio para trabajar o estudiar, con un dormitorio más chico', b:'Un dormitorio más grande, sin espacio propio para trabajar' },
+  { id:'t3', type:'bipolar', label:'¿Y entre estas dos?', a:'Trabajar en un espacio compartido del edificio y tener una vivienda más grande', b:'Trabajar dentro de mi vivienda, aunque sea más chica' },
+  { id:'t4', type:'bipolar', label:'¿Y entre estas dos?', a:'Una vivienda más chica con espacios compartidos: lavandería, parrillas, patio', b:'Una vivienda más grande, sin espacios compartidos' },
+  { id:'t5', type:'bipolar', label:'¿Y entre estas dos?', a:'Una vivienda amoblada y equipada, pagando algo más por mes', b:'Una vivienda sin muebles, más barata, que amueblo yo' },
+  { id:'t6', type:'bipolar', label:'Por último, ¿cómo preferís pagar tu vivienda?', a:'Un pago mensual fijo con todo incluido (alquiler, expensas, servicios e internet), aunque algún mes pague algo más de lo que consumí', b:'El alquiler por un lado y las expensas, los servicios y el wifi aparte, según lo que consuma cada mes, aunque el total varíe' },
+  { id:'chk', type:'likert', label:'Para comprobar que estás leyendo, marcá <b>«En desacuerdo»</b>.', opts:LIK_ACUERDO },
+  { id:'am1', type:'grid', shuffle:true, fixedTop:['lav','pil'], colored:true, label:'Si tu edificio o complejo tuviera estos espacios compartidos, ¿qué importancia tendría cada uno para vos?',
+    rows:[O('lav','Lavandería'), O('pil','Pileta'), O('parr','Parrillas / asadores'), O('cow','Coworking o sala de estudio'), O('sum','Salón (SUM)'),
+          O('patio','Patio o parque común'), O('gym','Gimnasio'), O('bau','Baulera o espacio de guardado')],
+    cols:[O('2','Muy importante'),O('1','Me sirve'),O('0','No me interesa')] },
+  { id:'s_6', type:'cards', label:'Para juntarte con amigos o familia, ¿qué preferís?', opts:[O('unidad','En mi casa, aunque sea chica'),O('sum','En un salón o quincho compartido del edificio'),O('afuera','Salir afuera: bares, parques, casas de otros')] },
+]},
+
+{ id:'s6', title:'Tu ciudad', sub:'Qué buscás de la ubicación de tu vivienda.', qs:[
+  { id:'u1', type:'multi', max:3, shuffle:true, label:'¿Qué es lo más importante de la ubicación de tu vivienda? Elegí <b>hasta 3</b>.', opts:[
+    O('centro','Cercanía al centro'), O('trabajo','Cercanía al trabajo o la facultad'), O('verde','Cercanía a parques y espacios verdes'),
+    O('noche','Cercanía a bares, restaurantes y salidas'), O('comercios','Súper y comercios a pie'), O('transporte','Buen transporte público'),
+    O('afectos','Cercanía a familia o amigos'), O('tranquilo','Un barrio tranquilo y seguro'), O('accesos','Acceso rápido a Circunvalación y autopistas') ] },
+  { id:'u3', type:'chips', label:'¿Cuánto tiempo de viaje al trabajo o a la facultad te parece aceptable, como máximo?', opts:[O('15','Hasta 15 min'),O('30','15 a 30 min'),O('45','30 a 45 min'),O('60','45 a 60 min'),O('mas','Más de 1 hora')] },
+  { id:'u4', type:'textopt', label:'¿En qué barrio trabajás o estudiás la mayor parte de la semana?', ph:'Ej: Nueva Córdoba', skips:[O('remoto','Desde casa'),O('variable','Varía, sin lugar fijo'),O('na','No trabajo ni estudio')] },
+  { id:'zona', type:'info', html:`
+    <div class="zona">
+      <div class="zona-tag">Una zona de la ciudad</div>
+      <p class="zona-lead">Pensá en la zona marcada en el mapa: zona sur de Córdoba, entre Ciudad Universitaria y el Jockey Club.</p>
+      <div id="zona-map" class="zona-map"></div>
+      <div class="zona-hint">Podés acercar, alejar y mover el mapa para ubicarla.</div>
+      <div class="zona-refs"><span>Ciudad Universitaria</span><span>Jockey</span><span>Athletic</span><span>Paseo del Jockey</span><span>Hospital Privado</span><span>Quality Espacio</span></div>
+    </div>` },
+  { id:'u6', type:'chips', label:'¿Qué tan bien conocés esa zona?', opts:[O('bien','La conozco bien, voy seguido'),O('algo','La conozco algo, fui algunas veces'),O('ubica','La ubico, pero no la conozco'),O('no','No la ubico')] },
+  { id:'u7', type:'likert', label:'¿Qué tanto te gustaría vivir en esa zona?', showIf:UBICA_ZONA, opts:[O('5','Mucho'),O('4','Bastante'),O('3','Más o menos'),O('2','Poco'),O('1','Nada')] },
+  { id:'u8', type:'multichips', shuffle:true, label:'¿Con qué asociás esa zona? Elegí <b>hasta 3</b>.', max:3, showIf:UBICA_ZONA, exclusive:['nose'], opts:[
+    O('tranquila','Tranquila'), O('insegura','Insegura'), O('lejos','Lejos del centro'), O('conectada','Bien conectada'),
+    O('comercios','Con comercios y servicios'), O('verde','Con espacios verdes'), O('cara','Cara'), O('accesible','Accesible en precio'),
+    O('crecimiento','En crecimiento'), O('popular','Un barrio de siempre'), O('nose','No sé qué decir') ] },
+]},
+
+{ id:'s7', title:'Para cerrar', sub:'Una última pregunta, ya terminás.', qs:[
+  { id:'x1', type:'textarea', req:false, label:'Si pudieras cambiar una sola cosa de tu vivienda actual, ¿cuál sería?', ph:'Escribí lo que quieras (opcional)' },
+]},
+];
+// Evaluación de la encuesta: solo en la versión de prueba, como último bloque antes de enviar
+const EV_ESCALA = [O('1','1'),O('2','2'),O('3','3'),O('4','4'),O('5','5')];
+if (TESTER) SECTIONS.push(
+{ id:'ev', title:'Tu evaluación de la encuesta', sub:'Ahora sí, tu mirada crítica. Esto es lo que más nos sirve.', qs:[
+  { id:'ev_intro', type:'info', html:'<div class="ev-intro"><b>Gracias por llegar hasta acá.</b> Puntuá cada aspecto pensando en una persona de 25 a 35 años que recibe esta encuesta por redes, sin conocernos.</div>' },
+  { id:'ev1', type:'grid', label:'Del 1 al 5, ¿cómo evaluás cada aspecto?', note:'1 = muy mal · 5 = muy bien',
+    rows:[O('claridad','Claridad de las preguntas'), O('opciones','Las opciones de respuesta alcanzan'), O('celular','Facilidad para responder en el celular'),
+          O('duracion','Duración: que no se haga larga'), O('diseno','Diseño y estética'), O('interes','Interés: ganas de seguir respondiendo'),
+          O('confianza','Confianza que transmite (seriedad, privacidad)'), O('mapa','El mapa de la zona') ],
+    cols:EV_ESCALA },
+  { id:'ev2', type:'chips', label:'La duración, ¿te pareció…?', opts:[O('corta','Más corta de lo que esperaba'),O('justa','Justa'),O('larga','Un poco larga'),O('muylarga','Demasiado larga')] },
+  { id:'ev3', type:'chips', label:'Si te llegara de alguien que no conocés (por ejemplo, un anuncio en Instagram), ¿la completarías hasta el final?', opts:[O('4','Sí, seguro'),O('3','Probablemente sí'),O('2','Probablemente no'),O('1','No')] },
+  { id:'ev4', type:'multichips', label:'¿En qué bloques hubo alguna pregunta confusa, incómoda o difícil de responder?', note:'Podés marcar varios.', exclusive:['ninguno'], opts:[
+    O('s1','Tu perfil'), O('s2','Dónde y cómo vivís hoy'), O('s3','Tus ingresos'), O('s4','Lo que viene'), O('s5','Tus prioridades'), O('s6','Tu ciudad'), O('ninguno','Ninguno') ] },
+  { id:'ev5', type:'textarea', req:false, label:'¿Cuál fue y por qué? <span style="color:var(--tinta-60);font-size:12px">(opcional)</span>', ph:'Ej: en «Tus ingresos» no sabía qué tramo marcar porque…', showIf:r=>(r.ev4||[]).length>0 && !(r.ev4||[]).includes('ninguno') },
+  { id:'ev6', type:'textarea', req:false, label:'¿Qué falta o qué sobra? ¿Qué le preguntarías vos a alguien que busca dónde vivir?', ph:'Escribí lo que quieras (opcional)' },
+  { id:'ev7', type:'textarea', label:'Observaciones generales', ph:'Lo que te gustó, lo que cambiarías, errores que encontraste…', note:'Es lo más valioso de la prueba: cualquier detalle suma.' },
+]});
+
+// Vista previa: condición de cada pregunta condicional
+const PV_COND = {
+  p3:'Vive en Córdoba (F1 = sí)', p3m:'Se muda a Córdoba (F1 = mudanza)', p5:'No nació en Córdoba capital',
+  p9:'Trabaja', p11:'Trabaja',
+  h4:'Vive con su familia de origen', h6:'Vive con su familia de origen', h5:'Vive con su familia, alquila compartido o en residencia',
+  h10:'Inquilino/a', h15:'Inquilino/a',
+  e6:'Tiene ingresos propios (los montos se calculan con el tramo de ingreso)', e6b:'No tiene ingresos propios',
+  e4:'Piensa mudarse (o tal vez) en los próximos 2 años', m1:'Piensa mudarse (o tal vez) en los próximos 2 años', h6d:'No vive en vivienda propia',
+  u7:'Conoce o ubica la zona', u8:'Conoce o ubica la zona',
+};
+const PV_SCREENS = () => [['welcome','Portada'],['f1','Filtro · vive en Córdoba'],['consent','Consentimiento'],
+  ...SECTIONS.map((s,i)=>[s.id, (i+1)+'. '+s.title]), ['thanks','Cierre, sorteo y contacto']];
+
+// ============================================================
+// STATE
+// ============================================================
+let responses = {};
+let currentScreen = 'welcome';
+let caseUUID = '';
+let startTime = null;
+let secEnter = null;
+let QMAP = {};
+const SECTION_SCREENS = SECTIONS.map(s=>s.id);
+
+// ============================================================
+// RENDER
+// ============================================================
+function prepOpts(q){
+  if (!q.opts) return [];
+  if (!q.shuffle) return q.opts;
+  const fixed = q.opts.filter(o => (q.exclusive||[]).includes(o.v) || o.v===q.other);
+  const rest = shuffle(q.opts.filter(o => !fixed.includes(o)));
+  const out = rest.concat(fixed);
+  responses['ord_'+q.id] = out.map(o=>o.v).join(',');
+  return out;
+}
+function renderQ(q){
+  const req = (q.req===false || q.type==='info') ? '' : '<span class="req">*</span>';
+  const counter = (q.type==='multi'||q.type==='multichips') && q.max ? `<span class="counter-badge" id="${q.id}-counter">0/${q.max}</span>` : '';
+  const label = q.label ? `<div class="q-label">${q.label} ${req}${counter}</div>` : '';
+  const note = q.note ? `<div class="q-note">${q.note}</div>` : '';
+  const opts = prepOpts(q);
+  let body = '', err = 'Por favor respondé esta pregunta.';
+  switch (q.type){
+    case 'chips':
+      body = `<div class="chips">${opts.map(o=>`<div class="chip" data-v="${o.v}" onclick="pick('${q.id}',this)">${o.t}</div>`).join('')}</div>`; break;
+    case 'likert':
+      body = `<div class="likert-chips">${opts.map(o=>`<div class="likert-chip" data-v="${o.v}" onclick="pick('${q.id}',this)">${o.t}</div>`).join('')}</div>`; break;
+    case 'cards':
+      body = `<div class="cards-grid">${opts.map(o=>`<div class="option-card" data-v="${o.v}" onclick="pick('${q.id}',this)"><div class="card-title">${o.t}</div>${o.s?`<div class="card-sub">${o.s}</div>`:''}</div>`).join('')}</div>`; break;
+    case 'multi':
+      err = 'Elegí al menos una opción.';
+      body = `<div class="cards-grid">${opts.map(o=>`<div class="option-card" data-v="${o.v}" onclick="pickMulti('${q.id}',this)"><div class="card-title">${o.t}</div>${o.s?`<div class="card-sub">${o.s}</div>`:''}</div>`).join('')}</div>`; break;
+    case 'multichips':
+      err = 'Elegí al menos una opción.';
+      body = `<div class="chips">${opts.map(o=>`<div class="chip" data-v="${o.v}" onclick="pickMulti('${q.id}',this)">${o.t}</div>`).join('')}</div>`; break;
+    case 'number':
+      err = q.err || err;
+      body = `<input type="number" inputmode="numeric" class="text-input" id="in-${q.id}" placeholder="${q.ph||''}" min="${q.min}" max="${q.max}" style="max-width:160px" oninput="setVal('${q.id}',this.value)">`; break;
+    case 'money':
+      err = 'Ingresá un monto aproximado o marcá la opción de abajo.';
+      body = `<div class="money-wrap"><span class="money-pre">$</span><input type="text" inputmode="numeric" class="text-input" id="in-${q.id}" placeholder="Monto aproximado por mes" oninput="setMoney('${q.id}',this)"></div>
+        <div class="chips" style="margin-top:8px"><div class="chip" id="skip-${q.id}" onclick="skipMoney('${q.id}',this)">${q.skip||'No sé'}</div></div>`; break;
+    case 'text':
+      body = `<input type="text" class="text-input" placeholder="${q.ph||''}" oninput="setVal('${q.id}',this.value)">`; break;
+    case 'textarea':
+      body = `<textarea class="text-input" placeholder="${q.ph||''}" oninput="setVal('${q.id}',this.value)"></textarea>`; break;
+    case 'textopt':
+      err = 'Escribí el barrio o marcá una opción.';
+      body = `<input type="text" class="text-input" id="in-${q.id}" placeholder="${q.ph||''}" oninput="setTextOpt('${q.id}',this.value)">
+        <div class="chips" style="margin-top:8px">${q.skips.map(o=>`<div class="chip" data-v="${o.v}" onclick="pickTextOpt('${q.id}',this)">${o.t}</div>`).join('')}</div>`; break;
+    case 'principal':
+      body = `<div class="chips" id="pr-${q.id}"></div>`; break;
+    case 'pct':
+      body = `<div class="cards-grid" id="pct-${q.id}"></div>`; break;
+    case 'grid': {
+      err = 'Respondé todas las filas.';
+      const top = q.rows.filter(r => (q.fixedTop||[]).includes(r.v));
+      const rows = q.shuffle ? top.concat(shuffle(q.rows.filter(r => !top.includes(r)))) : q.rows;
+      if (q.shuffle) responses['ord_'+q.id] = rows.map(r=>r.v).join(',');
+      body = `<div class="grid-q${q.cols.some(c=>c.t.length>6)?' grid3':''}${q.colored?' gcol':''}">${rows.map(r=>`<div class="grid-row"><div class="grid-lab">${r.t}</div><div class="grid-opts">${q.cols.map(c=>`<div class="grid-opt" data-r="${r.v}" data-c="${c.v}" onclick="pickGrid('${q.id}','${r.v}',this)">${c.t}</div>`).join('')}</div></div>`).join('')}</div>`; break; }
+    case 'bipolar':
+      err = 'Marcá hacia qué lado te inclinás.';
+      body = `<div class="bip"><div class="bip-ends"><div class="bip-end"><span class="bip-tag">A</span>${q.a}</div><div class="bip-end right">${q.b}<span class="bip-tag">B</span></div></div>
+        <div class="bip-scale">${BIP.map(o=>`<div class="bip-opt ${Number(o.v)<0?'side-a':'side-b'} ${Math.abs(Number(o.v))===2?'strong':'soft'}" data-v="${o.v}" onclick="pick('${q.id}',this)">${o.t}</div>`).join('')}</div></div>`; break;
+    case 'info':
+      body = q.html; break;
+  }
+  const otherWrap = q.other ? `<div id="${q.id}-otro-wrap" style="display:none;margin-top:8px"><input type="text" class="text-input" placeholder="${q.otherPh||'Especificá'}" style="font-size:13px;padding:10px 14px" oninput="responses['${q.id}_otro']=this.value"></div>` : '';
+  return `<div class="q-block" id="qb-${q.id}">${label}${note}${body}${otherWrap}<div class="q-error">${err}</div></div>`;
+}
+function buildSections(){
+  QMAP = {};
+  const root = document.getElementById('sections-root');
+  root.innerHTML = SECTIONS.map((s,i)=>{
+    s.qs.forEach(q => QMAP[q.id] = q);
+    return `<div id="screen-${s.id}" class="screen">
+      <div class="section-label">Bloque ${i+1} de ${SECTIONS.length}</div>
+      <div class="section-title">${s.title}</div>
+      ${s.sub?`<div class="section-sub">${s.sub}</div>`:''}
+      ${s.qs.map(renderQ).join('')}${i===0 ? HONEYPOT : ''}
+      ${TESTER && s.id!=='ev' ? `<details class="blk-obs"><summary>¿Algo para comentar de esta pantalla?</summary>
+        <textarea class="text-input" placeholder="Opcional: una pregunta que no se entiende, una opción que falta, algo que molesta…" oninput="responses['obs_${s.id}']=this.value"></textarea>
+        <div class="q-note">Solo en la versión de prueba.</div></details>` : ''}
+      <div style="height:80px"></div></div>`;
+  }).join('');
+  Object.values(QMAP).filter(q=>q.type==='pct').forEach(renderPct);
+  updateVisibility();
+}
+
+// ============================================================
+// HANDLERS
+// ============================================================
+function pick(id, el){
+  const block = document.getElementById('qb-'+id);
+  block.querySelectorAll('[data-v]').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  responses[id] = el.dataset.v;
+  afterChange(id);
+}
+function pickMulti(id, el){
+  const q = QMAP[id], v = el.dataset.v, excl = q.exclusive || [];
+  let arr = (responses[id] || []).slice();
+  if (arr.includes(v)) arr = arr.filter(x=>x!==v);
+  else if (excl.includes(v)) arr = [v];
+  else {
+    arr = arr.filter(x=>!excl.includes(x));
+    if (q.max && arr.length >= q.max) return;
+    arr.push(v);
+  }
+  responses[id] = arr;
+  document.getElementById('qb-'+id).querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('selected', arr.includes(x.dataset.v)));
+  updateCounter(id, arr.length, q.max);
+  afterChange(id);
+}
+function updateCounter(id, n, max){
+  const c = document.getElementById(id+'-counter');
+  if (!c || !max) return;
+  c.textContent = n+'/'+max;
+  c.className = 'counter-badge' + (n===max ? ' complete' : '');
+}
+function setVal(id, v){ responses[id] = v; afterChange(id); }
+function setTextOpt(id, v){
+  responses[id] = v;
+  document.getElementById('qb-'+id).querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  afterChange(id);
+}
+function pickTextOpt(id, el){
+  const on = !el.classList.contains('selected');
+  document.getElementById('qb-'+id).querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  const inp = document.getElementById('in-'+id);
+  if (on){ el.classList.add('selected'); inp.value = ''; responses[id] = '#'+el.dataset.v; }
+  else responses[id] = '';
+  afterChange(id);
+}
+function pickGrid(id, row, el){
+  el.parentElement.querySelectorAll('.grid-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  responses[id+'_'+row] = el.dataset.c;
+  clearError('qb-'+id);
+}
+function renderPrincipal(q){
+  const box = document.getElementById('pr-'+q.id); if (!box) return;
+  const src = QMAP[q.from], excl = src.exclusive || [];
+  const sel = PREVIEW ? src.opts.map(o=>o.v).filter(v=>!excl.includes(v)) : (responses[q.from]||[]).filter(v=>!excl.includes(v));
+  if (responses[q.id] && !sel.includes(responses[q.id])) delete responses[q.id];
+  box.innerHTML = src.opts.filter(o=>sel.includes(o.v)).map(o=>`<div class="chip${responses[q.id]===o.v?' selected':''}" data-v="${o.v}" onclick="pick('${q.id}',this)">${o.t}</div>`).join('');
+}
+function imputarPrincipales(){
+  Object.values(QMAP).filter(q=>q.type==='principal').forEach(q=>{
+    const src = QMAP[q.from], excl = src.exclusive || [];
+    const sel = (responses[q.from]||[]).filter(v=>!excl.includes(v));
+    if (!isVisible(q) && sel.length === 1) responses[q.id] = sel[0];
+  });
+}
+// Porcentaje del ingreso: las bandas muestran el monto aproximado según el tramo de ingreso marcado
+function renderPct(q){
+  const box = document.getElementById('pct-'+q.id); if (!box) return;
+  const medio = INGRESO_MEDIO[responses.p12];
+  const sub = ([lo, hi]) => {
+    if (!medio) return '';
+    if (hi === null) return `más de ${fmt(r5(medio*lo/100))} por mes`;
+    if (lo === 0) return `hasta ${fmt(r5(medio*hi/100))} por mes`;
+    return `${fmt(r5(medio*lo/100))} a ${fmt(r5(medio*hi/100))} por mes`;
+  };
+  const cards = PCT_BANDAS.map(([v,t,lo,hi])=>`<div class="option-card${responses[q.id]===v?' selected':''}" data-v="${v}" onclick="pick('${q.id}',this)"><div class="card-title">${t}</div>${medio?`<div class="card-sub">≈ ${sub([lo,hi])}</div>`:''}</div>`);
+  box.innerHTML = cards.join('');
+  const n = document.querySelector('#qb-'+q.id+' .q-note');
+  if (n) n.style.display = medio ? '' : 'none';
+}
+function setMoney(id, el){
+  const digits = el.value.replace(/\D/g,'');
+  el.value = digits ? Number(digits).toLocaleString('es-AR') : '';
+  responses[id] = digits;
+  const s = document.getElementById('skip-'+id); if (s) s.classList.remove('selected');
+  afterChange(id);
+}
+function skipMoney(id, el){
+  const on = !el.classList.contains('selected');
+  el.classList.toggle('selected', on);
+  const inp = document.getElementById('in-'+id);
+  inp.disabled = on; if (on) inp.value = '';
+  responses[id] = on ? 'NS' : '';
+  afterChange(id);
+}
+function afterChange(id){
+  clearError('qb-'+id);
+  const q = QMAP[id];
+  if (q && q.other){
+    const v = responses[id];
+    const on = Array.isArray(v) ? v.includes(q.other) : v===q.other;
+    const w = document.getElementById(id+'-otro-wrap');
+    if (w) w.style.display = on ? 'block' : 'none';
+  }
+  Object.values(QMAP).filter(x=>x.type==='principal' && x.from===id).forEach(renderPrincipal);
+  if (id === 'p12') Object.values(QMAP).filter(x=>x.type==='pct').forEach(x=>{ delete responses[x.id]; renderPct(x); });
+  updateVisibility();
+}
+function updateVisibility(){
+  if (PREVIEW) return;   // en vista previa se ven todas las preguntas
+  Object.values(QMAP).forEach(q=>{
+    if (!q.showIf) return;
+    const b = document.getElementById('qb-'+q.id);
+    if (b) b.style.display = q.showIf(responses) ? '' : 'none';
+  });
+}
+function isVisible(q){ return !q.showIf || q.showIf(responses); }
+function clearError(id){ const el=document.getElementById(id); if (el) el.classList.remove('error'); }
+
+// ============================================================
+// FLOW
+// ============================================================
+function init(){
+  document.getElementById('welcome-badge').textContent = 'Encuesta · ' + OLA_FECHA;
+  document.getElementById('thanks-meta').textContent = 'Periferia · Encuesta ' + OLA_ACTUAL + ' · ' + OLA_FECHA;
+  document.getElementById('sorteo-fecha').textContent = SORTEO_FECHA;
+  document.getElementById('logo-click').addEventListener('dblclick', openAdminPrompt);
+  if (TESTER) document.body.classList.add('tester');
+  if (PREVIEW){ previewInit(); return; }
+  if (CUOTA_CERRADA){ showOnly('closed'); document.getElementById('progress-bar-wrap').style.display='none'; return; }
+  if (yaRespondio()){ showOnly('already'); return; }
+}
+function previewDecorate(){
+  Object.values(QMAP).forEach(q=>{
+    const b = document.getElementById('qb-'+q.id); if (!b) return;
+    b.style.display = '';
+    if (q.showIf && !b.querySelector('.pv-cond')) b.insertAdjacentHTML('afterbegin', `<div class="pv-cond">Condicional · se muestra si: ${PV_COND[q.id] || 'ver ruteo'}</div>`);
+    if (q.type === 'principal') renderPrincipal(q);
+  });
+}
+function previewInit(){
+  document.body.classList.add('preview');
+  document.getElementById('case-display').textContent = 'PREVIEW';
+  const bar = document.createElement('div'); bar.id = 'pv-bar';
+  bar.innerHTML = `<span class="pv-tag">Vista previa · no guarda datos</span><button type="button" onclick="pvStep(-1)" aria-label="Anterior">‹</button>
+    <select id="pv-sel" onchange="goToScreen(this.value)">${PV_SCREENS().map(([v,t])=>`<option value="${v}">${t}</option>`).join('')}</select>
+    <button type="button" onclick="pvStep(1)" aria-label="Siguiente">›</button>`;
+  document.body.appendChild(bar);
+  previewBuild();
+}
+function previewBuild(){
+  caseUUID = 'preview'; startTime = Date.now();
+  responses = { uuid:'preview', f1:'si', consent:'si' };
+  buildSections(); previewDecorate();
+}
+function pvStep(dir){
+  const list = PV_SCREENS().map(x=>x[0]), i = list.indexOf(currentScreen);
+  goToScreen(list[Math.max(0, Math.min(list.length-1, (i<0?0:i)+dir))]);
+}
+function showOnly(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+function startSurvey(){
+  if (PREVIEW){ previewBuild(); goToScreen('f1'); return; }
+  caseUUID = generateUUID();
+  startTime = Date.now();
+  const utms = getUTMParams();
+  responses = { uuid:caseUUID, modo:MODO, fp:huella(), estudio:ESTUDIO_COD, ola:OLA_ACTUAL, ola_fecha:OLA_FECHA, startTime:new Date().toISOString(), ...utms };
+  buildSections();
+  try { if (!TESTER && typeof fbq!=='undefined') fbq('track','InitiateCheckout',{content_name:'encuesta_vivienda_iniciada',content_category:utms.utm_term||'sin_utm'}); } catch(e){}
+  document.getElementById('case-display').textContent = caseUUID.slice(0,8);
+  goToScreen('f1');
+}
+function filterAnswer(q, val){
+  if (!val){ responses[q]='No'; goToScreen('exit'); return; }
+  responses[q] = val;
+  goToScreen({ f1:'consent', consent:SECTION_SCREENS[0] }[q]);
+}
+function goToScreen(id){
+  if (SECTION_SCREENS.includes(currentScreen) && secEnter){
+    responses['t_'+currentScreen] = (responses['t_'+currentScreen]||0) + Math.round((Date.now()-secEnter)/1000);
+  }
+  secEnter = SECTION_SCREENS.includes(id) ? Date.now() : null;
+  showOnly(id);
+  currentScreen = id;
+  if (PREVIEW){ const s = document.getElementById('pv-sel'); if (s) s.value = id; }
+  window.scrollTo(0,0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
+  if (Object.keys(QMAP).length) updateVisibility();   // las condicionales que dependen de los filtros (p3, p3m) se evalúan al entrar
+  if (document.querySelector('#screen-'+id+' #zona-map')) setTimeout(initZonaMap, 50);
+  updateUI();
+}
+let zonaMap = null;
+function initZonaMap(){
+  const box = document.getElementById('zona-map'); if (!box) return;
+  if (zonaMap){ zonaMap.invalidateSize(); return; }
+  if (typeof L === 'undefined'){   // sin conexión a la librería: queda la descripción en texto
+    box.innerHTML = '<div style="padding:18px;font-size:12.5px;color:var(--tinta-60);line-height:1.5">El mapa no se pudo cargar. La zona queda entre Ciudad Universitaria y el Jockey Club, al sur de la ciudad.</div>';
+    return;
+  }
+  zonaMap = L.map(box, { center:ZONA_CIRCULO.centro, zoom:ZONA_ZOOM, minZoom:ZONA_ZOOM_MIN, maxZoom:ZONA_ZOOM_MAX, scrollWheelZoom:false, attributionControl:true, zoomControl:true });
+  if (MAPTILER_KEY){
+    const base = 'https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}';
+    const capa = L.tileLayer(base + '.png?key=' + MAPTILER_KEY, {
+      maxZoom:19, attribution:'&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(zonaMap);
+    let cargo = false, cambio = false;
+    capa.on('tileload', () => { cargo = true; });
+    capa.on('tileerror', () => { if (!cargo && !cambio){ cambio = true; capa.setUrl(base + '.jpg?key=' + MAPTILER_KEY); } });
+  } else {
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom:19, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(zonaMap);
+  }
+  const poly = L.circle(ZONA_CIRCULO.centro, { radius:ZONA_CIRCULO.radio, color:'#E2581F', weight:3, fillColor:'#E2581F', fillOpacity:.18 }).addTo(zonaMap);
+  poly.bindTooltip('La zona', { permanent:true, direction:'center', className:'zona-lbl' });
+  const lbl = () => { const t = poly.getTooltip(); if (!t) return; const el = t.getElement(); if (el) el.style.display = zonaMap.getZoom() >= 14 ? '' : 'none'; };
+  zonaMap.on('zoomend', lbl); setTimeout(lbl, 350);
+  ZONA_REFERENCIAS.forEach(p => {
+    const off = { top:[0,-6], bottom:[0,6], left:[-6,0], right:[6,0] }[p.d||'top'];
+    L.circleMarker(p.c, { radius:6, color:'#2B2521', weight:2, fillColor:'#F4EEE3', fillOpacity:1 }).addTo(zonaMap)
+      .bindTooltip(p.n, { permanent:true, direction:p.d||'top', offset:off, className:'zona-tip' });
+  });
+  // vista inicial: la zona y todos los puntos de referencia dentro del cuadro
+  const bounds = poly.getBounds().extend(L.latLngBounds(ZONA_REFERENCIAS.map(p=>p.c)));
+  zonaMap.fitBounds(bounds, { padding:[34,34] });
+  setTimeout(()=>{ zonaMap.invalidateSize(); zonaMap.fitBounds(bounds, { padding:[34,34] }); }, 300);
+}
+function navigate(dir){
+  const act = SECTION_SCREENS, idx = act.indexOf(currentScreen);
+  if (PREVIEW){ goToScreen(dir===1 ? (idx===act.length-1 ? 'thanks' : act[idx+1]) : (idx>0 ? act[idx-1] : 'consent')); return; }
+  if (dir === 1){
+    if (!validateSection(currentScreen)){
+      const b = document.getElementById('btn-next'); b.classList.add('shake'); setTimeout(()=>b.classList.remove('shake'),400);
+      return;
+    }
+    if (idx === act.length-1){ finishSurvey(); return; }
+    savePartial(currentScreen);
+    goToScreen(act[idx+1]);
+  } else {
+    if (idx > 0) goToScreen(act[idx-1]); else goToScreen('consent');
+  }
+}
+function updateUI(){
+  const act = SECTION_SCREENS, idx = act.indexOf(currentScreen);
+  document.getElementById('nav-buttons').style.display = SECTION_SCREENS.includes(currentScreen) ? 'flex' : 'none';
+  document.getElementById('btn-prev').style.display = idx <= 0 ? 'none' : 'block';
+  document.getElementById('btn-next').textContent = idx === act.length-1 ? 'Enviar respuestas ✓' : 'Siguiente →';
+  document.getElementById('progress-bar-fill').style.width = (idx>=0 ? Math.round(((idx+1)/act.length)*100) : 0) + '%';
+}
+
+// ============================================================
+// VALIDATION
+// ============================================================
+function answered(q){
+  const v = responses[q.id];
+  switch (q.type){
+    case 'number': { const n = parseInt(v,10); return !isNaN(n) && n>=q.min && n<=q.max; }
+    case 'money': return v==='NS' || (!!v && Number(v)>0);
+    case 'multi': case 'multichips': return Array.isArray(v) && v.length>0;
+    case 'grid': return q.rows.every(r=>!!responses[q.id+'_'+r.v]);
+    default: return v!==undefined && v!==null && v!=='';
+  }
+}
+function validateSection(sid){
+  const sec = SECTIONS.find(s=>s.id===sid);
+  let valid = true, first = null;
+  sec.qs.forEach(q=>{
+    if (q.type==='info' || q.req===false || !isVisible(q)) return;
+    if (!answered(q)){
+      const b = document.getElementById('qb-'+q.id);
+      b.classList.add('error'); if (!first) first = b; valid = false;
+    }
+  });
+  if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
+  return valid;
+}
+
+// ============================================================
+// FINISH / STORAGE
+// ============================================================
+async function finishSurvey(){
+  const btn = document.getElementById('btn-next');
+  if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = 'Enviando... ⏳'; btn.style.opacity = '0.6';
+  try {
+    // limpiar respuestas de preguntas que quedaron ocultas por el ruteo
+    Object.values(QMAP).forEach(q=>{ if (!isVisible(q)){ delete responses[q.id]; delete responses[q.id+'_otro']; (q.rows||[]).forEach(r=>delete responses[q.id+'_'+r.v]); } });
+    imputarPrincipales();
+    if (secEnter) responses['t_'+currentScreen] = (responses['t_'+currentScreen]||0) + Math.round((Date.now()-secEnter)/1000);
+    secEnter = null;
+    responses.endTime = new Date().toISOString();
+    responses.duration = Math.round((Date.now()-startTime)/1000);
+    // Calidad (no bloquea; se usa para depurar la base y el sorteo)
+    responses.chk_ok = responses.chk === '2' ? 1 : 0;
+    responses.q_rapido = responses.duration < MIN_SECS ? 1 : 0;
+    responses.q_honeypot = responses.hp ? 1 : 0; delete responses.hp;
+    responses.q_ok = (responses.chk_ok && !responses.q_rapido && !responses.q_honeypot) ? 1 : 0;
+    { const e = parseInt(responses.p2,10); responses.en_rango = (e>=25 && e<=35) ? 1 : 0; }   // edad dentro del público objetivo (25 a 35)
+    await saveResponse(responses);
+    marcarRespondido();
+    goToScreen('thanks');
+  } catch(e){
+    btn.disabled = false; btn.textContent = 'Enviar respuestas ✓'; btn.style.opacity = '1';
+  }
+  btn.disabled = false; btn.style.opacity = '1';
+}
+function flatten(data){
+  const out = {};
+  Object.entries(data).forEach(([k,v])=>{ out[k] = Array.isArray(v) ? v.join('|') : v; });
+  return out;
+}
+async function postToSheets(obj){
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL==='REEMPLAZAR_CON_TU_URL_DE_APPS_SCRIPT') return;
+  try { await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}); }
+  catch(err){ console.warn('No se pudo enviar a Sheets, guardado en local:', err); }
+}
+function savePartial(sid){
+  // copia parcial al terminar cada bloque: permite medir el abandono por bloque
+  const snap = flatten({ ...responses, ultimo_bloque:sid, t_parcial:Math.round((Date.now()-startTime)/1000) });
+  delete snap.hp;
+  postToSheets({ tipo:'parcial', ...snap });
+}
+async function saveResponse(data){
+  const flat = flatten(data);
+  try { localStorage.setItem(STORAGE_PREFIX+data.uuid, JSON.stringify(flat)); } catch(e){}
+  await postToSheets({ tipo:'respuesta', ...flat });
+  try { if (!TESTER && typeof fbq!=='undefined') fbq('track','Lead',{content_name:'encuesta_vivienda_completada',content_category:data.utm_term||'sin_utm',value:1.00,currency:'ARS'}); } catch(e){}
+}
+function getAllResponses(){
+  const all = [];
+  try {
+    for (let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if (k && k.startsWith(STORAGE_PREFIX)) { try { all.push(JSON.parse(localStorage.getItem(k))); } catch(e){} }
+    }
+  } catch(e){}
+  return all;
+}
+async function saveContact(){
+  const email = document.getElementById('thanks-email').value.trim();
+  const phone = document.getElementById('thanks-phone').value.trim();
+  const errEl = document.getElementById('contact-error-msg');
+  if ((!email && !phone) || (email && !email.includes('@'))){ errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  const entrevista = document.getElementById('thanks-entrevista').checked;
+  const resultados = document.getElementById('thanks-resultados').checked;
+  // El contacto del sorteo se guarda aparte. Solo se vincula con las respuestas si la persona acepta la entrevista.
+  // Las marcas de calidad viajan con el contacto para poder excluir del sorteo respuestas inválidas sin abrir las respuestas.
+  const contact = { tipo:'contacto_sorteo', modo:MODO, estudio:ESTUDIO_COD, ola:OLA_ACTUAL, email, phone,
+    acepta_entrevista: entrevista ? 1 : 0, quiere_resultados: resultados ? 1 : 0,
+    uuid: entrevista ? caseUUID : 'anon', q_ok: responses.q_ok ?? '', duration: responses.duration ?? '',
+    savedAt: new Date().toISOString() };
+  try { localStorage.setItem(CONTACT_PREFIX+Date.now(), JSON.stringify(contact)); } catch(e){}
+  await postToSheets(contact);
+  document.getElementById('thanks-contact-section').style.opacity = '0.6';
+  document.getElementById('contact-saved-msg').style.display = 'block';
+  ['thanks-email','thanks-phone','thanks-entrevista','thanks-resultados'].forEach(id=>document.getElementById(id).disabled = true);
+}
+async function saveTesterExtra(){
+  const t = document.getElementById('tester-extra-txt').value.trim();
+  if (!t) return;
+  await postToSheets({ tipo:'comentario_tester', modo:MODO, estudio:ESTUDIO_COD, ola:OLA_ACTUAL, uuid:caseUUID, comentario:t, savedAt:new Date().toISOString() });
+  document.getElementById('tester-extra-txt').disabled = true;
+  document.getElementById('tester-extra-msg').style.display = 'block';
+}
+async function compartirEncuesta(){
+  const url = window.location.origin + window.location.pathname;
+  if (navigator.share){
+    try { await navigator.share({ title:'Encuesta · Vivir en Córdoba', text:'Si tenés entre 25 y 35 años y vivís en Córdoba, contestá en 10 minutos y participá del sorteo:', url }); return; }
+    catch(e){ if (e.name==='AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(url); const m=document.getElementById('share-copied-msg'); m.style.display='block'; setTimeout(()=>m.style.display='none',3000); }
+  catch(e){ prompt('Copiá el link para compartir:', url); }
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function openAdminPrompt(){
+  document.getElementById('admin-modal').classList.add('open');
+  document.getElementById('admin-login-view').style.display='block';
+  document.getElementById('admin-data-view').style.display='none';
+  document.getElementById('admin-error').style.display='none';
+  document.getElementById('admin-pw').value='';
+  setTimeout(()=>document.getElementById('admin-pw').focus(),100);
+}
+function closeAdmin(){ document.getElementById('admin-modal').classList.remove('open'); }
+function adminLogin(){
+  if (ADMIN_PW && document.getElementById('admin-pw').value === ADMIN_PW){
+    document.getElementById('admin-login-view').style.display='none';
+    document.getElementById('admin-data-view').style.display='block';
+    renderAdminData();
+  } else document.getElementById('admin-error').style.display='block';
+}
+function renderAdminData(){
+  const all = getAllResponses();
+  const avg = all.length ? Math.round(all.reduce((s,r)=>s+(Number(r.duration)||0),0)/all.length/60) : 0;
+  const chk = all.length ? Math.round(100*all.filter(r=>Number(r.q_ok)===1).length/all.length) : 0;
+  document.getElementById('admin-kpis').innerHTML = `
+    <div class="admin-kpi"><div class="v">${all.length}</div><div class="l">Casos (este dispositivo)</div></div>
+    <div class="admin-kpi"><div class="v">${avg} min</div><div class="l">Duración prom.</div></div>
+    <div class="admin-kpi"><div class="v">${chk}%</div><div class="l">Casos válidos</div></div>`;
+  const rows = all.slice(-20).reverse().map(r=>`<tr><td>${(r.uuid||'').slice(0,8)}</td><td>${(r.startTime||'').slice(0,10)}</td><td>${r.p2||'—'}</td><td>${r.h1||'—'}</td><td>${r.p12||'—'}</td><td>${Math.round((r.duration||0)/60)}′</td></tr>`).join('');
+  document.getElementById('admin-table-wrap').innerHTML = `<table class="admin-table"><thead><tr><th>ID</th><th>Fecha</th><th>Edad</th><th>Vivienda</th><th>Ingreso</th><th>Tiempo</th></tr></thead>
+    <tbody>${rows||'<tr><td colspan=6 style="color:var(--tinta-60);text-align:center;padding:20px">Sin datos todavía</td></tr>'}</tbody></table>`;
+}
+function exportCSV(){
+  const all = getAllResponses();
+  if (!all.length){ alert('Sin datos todavía.'); return; }
+  const keys = [...new Set(all.flatMap(Object.keys))];
+  const csv = [keys.join(','), ...all.map(r=>keys.map(k=>'"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))].join('\n');
+  download('periferia_'+OLA_KEY_SUFFIX+'_'+new Date().toISOString().slice(0,10)+'.csv', csv, 'text/csv');
+}
+function exportJSON(){
+  const all = getAllResponses();
+  if (!all.length){ alert('Sin datos todavía.'); return; }
+  download('periferia_'+OLA_KEY_SUFFIX+'_'+new Date().toISOString().slice(0,10)+'.json', JSON.stringify(all,null,2), 'application/json');
+}
+function clearData(){
+  if (!confirm('¿Borrar TODOS los datos locales de esta encuesta?')) return;
+  if (!confirm('Segunda confirmación: esta acción no se puede deshacer.')) return;
+  Object.keys(localStorage).filter(k=>k.startsWith(STORAGE_PREFIX)).forEach(k=>localStorage.removeItem(k));
+  renderAdminData();
+}
+function download(filename, content, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content],{type}));
+  a.download = filename; a.click();
+}
+
+init();
+</script>
+</body>
+</html>
