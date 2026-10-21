@@ -12,7 +12,7 @@
 <!--
   ============================================================
   BORRADOR v1.0 · Instrumento cuantitativo · Estudio vivienda Córdoba
-  Encuesta digital · personas de 25 a 35 años · objetivo 200 casos · Meta Ads · incentivo: sorteo
+  Encuesta digital · personas de 20 a 35 años · objetivo 200 casos · Meta Ads · incentivo: sorteo
   Duración objetivo: 10 minutos.
   Código público del estudio: VC (neutro). No usar el nombre del cliente ni
   del proyecto en nada que vea el encuestado, ni en URLs ni en archivos públicos.
@@ -336,8 +336,7 @@ body.tester .share-block{display:none}
       <div class="welcome-logo">periferia</div>
       <div class="welcome-sub-name">Consultora</div>
     </div>
-    <div class="welcome-tagline">Estudio sobre cómo viven y cómo quieren vivir las personas de 25 a 35 años en Córdoba. Queremos conocer tu situación actual y lo que buscás para tu próxima vivienda.</div>
-    <div class="welcome-ola-badge" id="welcome-badge">Encuesta 2026</div>
+    <div class="welcome-tagline">Estudio sobre cómo viven y cómo quieren vivir las personas de 20 a 35 años en Córdoba. Queremos conocer tu situación actual y lo que buscás para tu próxima vivienda.</div>
     <div class="welcome-meta">
       <div class="welcome-meta-item"><div class="val">~10 min</div><div class="lbl">duración</div></div>
       <div class="welcome-meta-item"><div class="val">Anónima</div><div class="lbl">confidencial</div></div>
@@ -409,7 +408,7 @@ body.tester .share-block{display:none}
       <p id="tester-extra-msg" class="ok-msg">✓ Recibido. ¡Gracias!</p>
     </div>
     <div class="share-block">
-      <p class="share-text">¿Conocés a alguien de 25 a 35 años en Córdoba?</p>
+      <p class="share-text">¿Conocés a alguien de 20 a 35 años en Córdoba?</p>
       <button type="button" class="share-btn" onclick="compartirEncuesta()"><span>🔗</span><span>Compartí la encuesta</span></button>
       <p id="share-copied-msg" class="ok-msg">✓ Link copiado al portapapeles</p>
     </div>
@@ -692,7 +691,7 @@ const SECTIONS = [
 const EV_ESCALA = [O('1','1'),O('2','2'),O('3','3'),O('4','4'),O('5','5')];
 if (TESTER) SECTIONS.push(
 { id:'ev', title:'Tu evaluación de la encuesta', sub:'Ahora sí, tu mirada crítica. Esto es lo que más nos sirve.', qs:[
-  { id:'ev_intro', type:'info', html:'<div class="ev-intro"><b>Gracias por llegar hasta acá.</b> Puntuá cada aspecto pensando en una persona de 25 a 35 años que recibe esta encuesta por redes, sin conocernos.</div>' },
+  { id:'ev_intro', type:'info', html:'<div class="ev-intro"><b>Gracias por llegar hasta acá.</b> Puntuá cada aspecto pensando en una persona de 20 a 35 años que recibe esta encuesta por redes, sin conocernos.</div>' },
   { id:'ev1', type:'grid', label:'Del 1 al 5, ¿cómo evaluás cada aspecto?', note:'1 = muy mal · 5 = muy bien',
     rows:[O('claridad','Claridad de las preguntas'), O('opciones','Las opciones de respuesta alcanzan'), O('celular','Facilidad para responder en el celular'),
           O('interes','Interés: ganas de seguir respondiendo'), O('confianza','Confianza que transmite (seriedad, privacidad)') ],
@@ -936,8 +935,7 @@ function clearError(id){ const el=document.getElementById(id); if (el) el.classL
 // FLOW
 // ============================================================
 function init(){
-  document.getElementById('welcome-badge').textContent = 'Encuesta · ' + OLA_FECHA;
-  document.getElementById('thanks-meta').textContent = 'Periferia · Encuesta ' + OLA_ACTUAL + ' · ' + OLA_FECHA;
+  document.getElementById('thanks-meta').textContent = 'Periferia Consultora';
   document.getElementById('sorteo-fecha').textContent = SORTEO_FECHA;
   document.getElementById('logo-click').addEventListener('dblclick', openAdminPrompt);
   if (TESTER) document.body.classList.add('tester');
@@ -1111,7 +1109,7 @@ async function finishSurvey(){
     responses.q_rapido = responses.duration < MIN_SECS ? 1 : 0;
     responses.q_honeypot = responses.hp ? 1 : 0; delete responses.hp;
     responses.q_ok = (responses.chk_ok && !responses.q_rapido && !responses.q_honeypot) ? 1 : 0;
-    { const e = parseInt(responses.p2,10); responses.en_rango = (e>=25 && e<=35) ? 1 : 0; }   // edad dentro del público objetivo (25 a 35)
+    { const e = parseInt(responses.p2,10); responses.en_rango = (e>=20 && e<=35) ? 1 : 0; }   // edad dentro del público objetivo (20 a 35)
     await saveResponse(responses);
     marcarRespondido();
     goToScreen('thanks');
@@ -1182,7 +1180,7 @@ async function saveTesterExtra(){
 async function compartirEncuesta(){
   const url = window.location.origin + window.location.pathname;
   if (navigator.share){
-    try { await navigator.share({ title:'Encuesta · Vivir en Córdoba', text:'Si tenés entre 25 y 35 años y vivís en Córdoba, contestá en 10 minutos y participá del sorteo:', url }); return; }
+    try { await navigator.share({ title:'Encuesta · Vivir en Córdoba', text:'Si tenés entre 20 y 35 años y vivís en Córdoba, contestá en 10 minutos y participá del sorteo:', url }); return; }
     catch(e){ if (e.name==='AbortError') return; }
   }
   try { await navigator.clipboard.writeText(url); const m=document.getElementById('share-copied-msg'); m.style.display='block'; setTimeout(()=>m.style.display='none',3000); }
