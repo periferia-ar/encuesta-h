@@ -649,8 +649,8 @@ const SECTIONS = [
 { id:'s5', title:'Tus prioridades', sub:'Elegí entre dos opciones. No hay respuestas correctas: nos interesa lo que vos preferís.', qs:[
   { id:'t1', type:'bipolar', label:'Si tuvieras que elegir, ¿qué preferís?', a:'Una cocina más grande y un baño más chico', b:'Un baño más grande y una cocina más chica' },
   { id:'t2', type:'bipolar', label:'¿Y entre estas dos?', a:'Un espacio propio para trabajar o estudiar, con un dormitorio más chico', b:'Un dormitorio más grande, sin espacio propio para trabajar' },
-  { id:'t3', type:'bipolar', label:'¿Y entre estas dos?', a:'Trabajar en un espacio compartido del edificio y tener una vivienda más grande', b:'Trabajar dentro de mi vivienda, aunque sea más chica' },
-  { id:'t4', type:'bipolar', label:'¿Y entre estas dos?', a:'Una vivienda más chica con espacios compartidos: lavandería, parrillas, patio', b:'Una vivienda más grande, sin espacios compartidos' },
+  { id:'t3', type:'bipolar', label:'¿Y entre estas dos?', a:'Tener un coworking en mi edificio, de uso compartido con otros vecinos', b:'Trabajar dentro de mi vivienda con privacidad, aunque sea pequeña' },
+  { id:'t4', type:'bipolar', label:'¿Y entre estas dos?', a:'Espacios compartidos (SUM, pileta, asador) con un departamento más chico', b:'Un departamento más grande, sin espacios compartidos' },
   { id:'t5', type:'bipolar', label:'¿Y entre estas dos?', a:'Una vivienda amoblada y equipada, pagando algo más por mes', b:'Una vivienda sin muebles, más barata, que amueblo yo' },
   { id:'t6', type:'bipolar', label:'Por último, ¿cómo preferís pagar tu vivienda?', a:'Un pago mensual fijo con todo incluido (alquiler, expensas, servicios e internet), aunque algún mes pague algo más de lo que consumí', b:'El alquiler por un lado y las expensas, los servicios y el wifi aparte, según lo que consuma cada mes, aunque el total varíe' },
   { id:'chk', type:'likert', label:'Para comprobar que estás leyendo, marcá <b>«En desacuerdo»</b>.', opts:LIK_ACUERDO },
@@ -663,7 +663,7 @@ const SECTIONS = [
 
 { id:'s6', title:'Tu ciudad', sub:'Qué buscás de la ubicación de tu vivienda.', qs:[
   { id:'u1', type:'multi', max:3, shuffle:true, label:'¿Qué es lo más importante de la ubicación de tu vivienda? Elegí <b>hasta 3</b>.', opts:[
-    O('centro','Cercanía al centro'), O('trabajo','Cercanía al trabajo o la facultad'), O('verde','Cercanía a parques y espacios verdes'),
+    O('centro','Cercanía al centro / Nueva Córdoba'), O('trabajo','Cercanía al trabajo o la facultad'), O('verde','Cercanía a parques y espacios verdes'),
     O('noche','Cercanía a bares, restaurantes y salidas'), O('comercios','Súper y comercios a pie'), O('transporte','Buen transporte público'),
     O('afectos','Cercanía a familia o amigos'), O('tranquilo','Un barrio tranquilo y seguro'), O('accesos','Acceso rápido a Circunvalación y autopistas') ] },
   { id:'u3', type:'chips', label:'¿Cuánto tiempo de viaje al trabajo o a la facultad te parece aceptable, como máximo?', opts:[O('15','Hasta 15 min'),O('30','15 a 30 min'),O('45','30 a 45 min'),O('60','45 a 60 min'),O('mas','Más de 1 hora')] },
@@ -695,15 +695,11 @@ if (TESTER) SECTIONS.push(
   { id:'ev_intro', type:'info', html:'<div class="ev-intro"><b>Gracias por llegar hasta acá.</b> Puntuá cada aspecto pensando en una persona de 25 a 35 años que recibe esta encuesta por redes, sin conocernos.</div>' },
   { id:'ev1', type:'grid', label:'Del 1 al 5, ¿cómo evaluás cada aspecto?', note:'1 = muy mal · 5 = muy bien',
     rows:[O('claridad','Claridad de las preguntas'), O('opciones','Las opciones de respuesta alcanzan'), O('celular','Facilidad para responder en el celular'),
-          O('duracion','Duración: que no se haga larga'), O('diseno','Diseño y estética'), O('interes','Interés: ganas de seguir respondiendo'),
-          O('confianza','Confianza que transmite (seriedad, privacidad)'), O('mapa','El mapa de la zona') ],
+          O('interes','Interés: ganas de seguir respondiendo'), O('confianza','Confianza que transmite (seriedad, privacidad)') ],
     cols:EV_ESCALA },
   { id:'ev2', type:'chips', label:'La duración, ¿te pareció…?', opts:[O('corta','Más corta de lo que esperaba'),O('justa','Justa'),O('larga','Un poco larga'),O('muylarga','Demasiado larga')] },
   { id:'ev3', type:'chips', label:'Si te llegara de alguien que no conocés (por ejemplo, un anuncio en Instagram), ¿la completarías hasta el final?', opts:[O('4','Sí, seguro'),O('3','Probablemente sí'),O('2','Probablemente no'),O('1','No')] },
-  { id:'ev4', type:'multichips', label:'¿En qué bloques hubo alguna pregunta confusa, incómoda o difícil de responder?', note:'Podés marcar varios.', exclusive:['ninguno'], opts:[
-    O('s1','Tu perfil'), O('s2','Dónde y cómo vivís hoy'), O('s3','Tus ingresos'), O('s4','Lo que viene'), O('s5','Tus prioridades'), O('s6','Tu ciudad'), O('ninguno','Ninguno') ] },
-  { id:'ev5', type:'textarea', req:false, label:'¿Cuál fue y por qué? <span style="color:var(--tinta-60);font-size:12px">(opcional)</span>', ph:'Ej: en «Tus ingresos» no sabía qué tramo marcar porque…', showIf:r=>(r.ev4||[]).length>0 && !(r.ev4||[]).includes('ninguno') },
-  { id:'ev6', type:'textarea', req:false, label:'¿Qué falta o qué sobra? ¿Qué le preguntarías vos a alguien que busca dónde vivir?', ph:'Escribí lo que quieras (opcional)' },
+  { id:'ev6', type:'textarea', req:false, label:'¿Qué le preguntarías vos a alguien que busca dónde vivir?', ph:'Escribí lo que quieras (opcional)' },
   { id:'ev7', type:'textarea', label:'Observaciones generales', ph:'Lo que te gustó, lo que cambiarías, errores que encontraste…', note:'Es lo más valioso de la prueba: cualquier detalle suma.' },
 ]});
 
