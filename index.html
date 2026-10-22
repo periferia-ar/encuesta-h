@@ -1148,6 +1148,26 @@ async function finishSurvey(){
   }
   btn.disabled = false; btn.style.opacity = '1';
 }
+// Orden de columnas para la planilla: el script lo usa para acomodar las columnas en el orden del cuestionario
+function columnasCanonicas(){
+  const c = ['estudio','ola','ola_fecha','fp','startTime','endTime','duration','max_bloque','ultimo_bloque','t_parcial',
+             'utm_source','utm_medium','utm_campaign','utm_content','utm_term','f1','consent'];
+  const obs = [], tiempos = ['t_f1','t_consent'], orden = [];
+  SECTIONS.forEach(s=>{
+    s.qs.forEach(q=>{
+      if (q.type==='info') return;
+      if (q.type==='grid') q.rows.forEach(r=>c.push(q.id+'_'+r.v)); else c.push(q.id);
+      if (q.other) c.push(q.id+'_otro');
+      if (q.id==='e0') c.push('e0_texto');
+      if (q.shuffle) orden.push('ord_'+q.id);
+    });
+    if (TESTER && s.id!=='ev') obs.push('obs_'+s.id);
+    tiempos.push('t_'+s.id);
+  });
+  return c.concat(obs, ['chk_ok','q_rapido','q_honeypot','q_ok','en_rango'], tiempos, orden);
+}
+let COLS_CACHE = '';
+function colsParam(){ return COLS_CACHE || (COLS_CACHE = columnasCanonicas().join(',')); }
 function flatten(data){
   const out = {};
   Object.entries(data).forEach(([k,v])=>{ out[k] = Array.isArray(v) ? v.join('|') : v; });
@@ -1162,12 +1182,12 @@ function savePartial(sid){
   // copia parcial al terminar cada bloque: permite medir el abandono por bloque
   const snap = flatten({ ...responses, ultimo_bloque:sid, t_parcial:Math.round((Date.now()-startTime)/1000) });
   delete snap.hp;
-  postToSheets({ tipo:'parcial', ...snap });
+  postToSheets({ tipo:'parcial', ...snap, _cols:colsParam() });
 }
 async function saveResponse(data){
   const flat = flatten(data);
   try { localStorage.setItem(STORAGE_PREFIX+data.uuid, JSON.stringify(flat)); } catch(e){}
-  await postToSheets({ tipo:'respuesta', ...flat });
+  await postToSheets({ tipo:'respuesta', ...flat, _cols:colsParam() });
   try { if (!TESTER && typeof fbq!=='undefined') fbq('track','Lead',{content_name:'encuesta_vivienda_completada',content_category:data.utm_term||'sin_utm',value:1.00,currency:'ARS'}); } catch(e){}
 }
 function getAllResponses(){
