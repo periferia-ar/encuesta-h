@@ -629,7 +629,7 @@ const SECTIONS = [
 ]},
 
 { id:'s4', title:'Lo que viene', sub:'Pensemos en los próximos dos años.', qs:[
-  { id:'e0', type:'chips', label:'¿Estás pensando en mudarte, alquilar o irte a vivir por tu cuenta?', opts:[O('12','Sí, en los próximos 12 meses'),O('24','Sí, en 1 a 2 años'),O('quizas','Tal vez, no lo tengo claro'),O('no','No, no lo tengo pensado')] },
+  { id:'e0', type:'chips', label:'¿Estás pensando en <span class="e0-txt">mudarte</span>?', opts:[O('12','Sí, en los próximos 12 meses'),O('24','Sí, en 1 a 2 años'),O('quizas','Tal vez, no lo tengo claro'),O('no','No, no lo tengo pensado')] },
   { id:'e5', type:'cards', label:'¿Cuál sería tu próximo paso ideal en vivienda?', opts:[O('solo','Alquilar solo/a'),O('pareja','Alquilar con mi pareja'),O('comp','Alquilar compartido'),O('comprar','Comprar'),O('quedarme','Quedarme donde estoy')] },
   { id:'e4', type:'chips', label:'¿Cuánto tiempo te imaginás viviendo en tu próxima vivienda?', showIf:SE_MUDA, opts:[O('6','Menos de 6 meses'),O('12','6 a 12 meses'),O('24','1 a 2 años'),O('60','2 a 5 años'),O('mas','Más de 5 años')] },
   { id:'m1', type:'grid', label:'Pensando en mudarte, ¿cuánto te frena cada una de estas cosas?', showIf:SE_MUDA,
@@ -929,6 +929,12 @@ function updateVisibility(){
     if (b) b.style.display = q.showIf(responses) ? '' : 'none';
   });
 }
+// La pregunta de intención se adapta a la situación: «irte a vivir por tu cuenta» solo para quien vive con su familia
+function textoIntencion(){
+  const fam = responses.h1 === 'fam';
+  document.querySelectorAll('.e0-txt').forEach(el => el.textContent = fam ? 'irte a vivir por tu cuenta' : 'mudarte');
+  if (responses.h1) responses.e0_texto = fam ? 'independizarse' : 'mudarse';
+}
 function isVisible(q){ return !q.showIf || q.showIf(responses); }
 function clearError(id){ const el=document.getElementById(id); if (el) el.classList.remove('error'); }
 
@@ -1002,7 +1008,7 @@ function goToScreen(id){
   currentScreen = id;
   if (PREVIEW){ const s = document.getElementById('pv-sel'); if (s) s.value = id; }
   window.scrollTo(0,0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
-  if (Object.keys(QMAP).length) updateVisibility();   // las condicionales que dependen de los filtros (p3, p3m) se evalúan al entrar
+  if (Object.keys(QMAP).length){ updateVisibility(); textoIntencion(); }   // las condicionales que dependen de los filtros (p3, p3m) se evalúan al entrar
   if (document.querySelector('#screen-'+id+' #zona-map')) setTimeout(initZonaMap, 50);
   updateUI();
 }
