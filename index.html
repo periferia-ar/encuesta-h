@@ -601,10 +601,10 @@ const SECTIONS = [
     O('ahorro','Ahorrar dinero'), O('compania','La compañía, no estar solo/a'), O('comida','Tener la comida y las tareas resueltas'),
     O('espacio','El espacio y la comodidad de la casa'), O('seguridad','La seguridad'), O('cuidado','La ayuda y el cuidado mutuo'),
     O('ubicacion','La ubicación'), O('nada','Nada en especial') ] },
-  { id:'h5', type:'multi', max:2, shuffle:true, label:'¿Qué es lo que más te afecta de la convivencia? Elegí <b>hasta 2</b>.', showIf:CONVIVE, exclusive:['nada'], opts:[
+  { id:'h5', type:'multi', max:2, shuffle:true, label:'¿Qué es lo que más te afecta de la convivencia? Elegí <b>hasta 2</b>.', showIf:CONVIVE, exclusive:['nada'], other:'otro', otherPh:'¿Qué otra cosa te afecta?', opts:[
     O('privacidad','Falta de privacidad'), O('recibir','No poder recibir gente cuando quiero'), O('ruido','Ruido: no poder descansar o concentrarme'),
     O('conflictos','Conflictos por tareas, horarios o gastos'), O('espacio_trab','No tener un lugar propio para trabajar o estudiar'),
-    O('autonomia','Tener que dar explicaciones'), O('chico','Poco espacio'), O('nada','Nada, estoy bien así') ] },
+    O('autonomia','Tener que dar explicaciones'), O('chico','Poco espacio'), O('otro','Otra cosa','Especificá'), O('nada','Nada, estoy bien así') ] },
   { id:'h6', type:'multi', max:3, shuffle:true, label:'¿Por qué hoy no vivís por tu cuenta? Elegí <b>hasta 3</b> motivos.', showIf:CON_FAMILIA, other:'otro', opts:[
     O('ingreso','No gano lo suficiente para mantenerme solo/a'), O('mercado','Los alquileres son inaccesibles para lo que se gana hoy'),
     O('inestable','Mis ingresos son inestables o informales'), O('requisitos','No cumplo los requisitos','Recibo de sueldo, garantía'),
@@ -623,7 +623,7 @@ const SECTIONS = [
 { id:'s3', title:'Tus ingresos', sub:'Estos datos son confidenciales. Nos sirven para entender qué vivienda es posible para cada situación.', qs:[
   { id:'p12', type:'chips', label:'¿En qué tramo está tu ingreso personal neto por mes, sumando todas tus fuentes?', note:'Neto: lo que te queda en mano. Si cobrás en dólares, calculá el equivalente en pesos.', opts:[...INGRESO_TRAMOS.map(([v,t])=>O(v,t)), O('sin','No tengo ingresos propios'), O('nr','Prefiero no responder')] },
   { id:'p13', type:'likert', label:'Con tus ingresos, ¿cómo llegás a fin de mes?', opts:[O('ahorro','Me alcanza y puedo ahorrar'),O('justo','Me alcanza justo'),O('ayuda','No me alcanza, recibo ayuda'),O('deuda','No me alcanza y me endeudo')] },
-  { id:'p14', type:'chips', label:'¿Tu familia te ayuda con tus gastos o con la vivienda?', opts:[O('reg','Sí, todos los meses'),O('aveces','A veces'),O('no','No')] },
+  { id:'p14', type:'chips', label:'¿Tu familia te ayuda <b>con dinero</b> para tus gastos o para pagar tu vivienda?', note:'Si vivís con tu familia, no cuentes lo que se comparte en la casa (techo, comida, servicios): solo la ayuda en dinero.', opts:[O('reg','Sí, todos los meses'),O('aveces','A veces'),O('no','No')] },
   { id:'e6', type:'pct', label:'¿Qué porcentaje de tu ingreso mensual podrías destinar, como máximo, al pago total de tu vivienda (alquiler, expensas, servicios e internet)?', note:'Los montos son una referencia aproximada según el tramo de ingreso que marcaste.', showIf:CON_INGRESO },
   { id:'e6b', type:'money', label:'Si vivieras por tu cuenta, ¿cuánto podrían pagar por mes, entre vos y quienes te ayudan, por el total de la vivienda (alquiler, expensas, servicios e internet)?', showIf:r=>r.p12==='sin', skip:'No sé' },
 ]},
@@ -651,7 +651,7 @@ const SECTIONS = [
   { id:'t3', type:'bipolar', label:'¿Y entre estas dos?', a:'Tener un coworking en mi edificio, de uso compartido con otros vecinos', b:'Trabajar dentro de mi vivienda con privacidad, aunque sea pequeña' },
   { id:'t4', type:'bipolar', label:'¿Y entre estas dos?', a:'Espacios compartidos (SUM, pileta, asador) con un departamento más chico', b:'Un departamento más grande, sin espacios compartidos' },
   { id:'t5', type:'bipolar', label:'¿Y entre estas dos?', a:'Una vivienda amoblada y equipada, pagando algo más por mes', b:'Una vivienda sin muebles, más barata, que amueblo yo' },
-  { id:'t6', type:'bipolar', label:'Por último, ¿cómo preferís pagar tu vivienda?', a:'Un pago mensual fijo con todo incluido (alquiler, expensas, servicios e internet), aunque algún mes pague algo más de lo que consumí', b:'El alquiler por un lado y las expensas, los servicios y el wifi aparte, según lo que consuma cada mes, aunque el total varíe' },
+  { id:'t6', type:'bipolar', label:'Por último, ¿cómo preferís pagar tu vivienda?', a:'Un pago mensual fijo con todo incluido (alquiler, expensas, servicios e internet), aunque no sepa exactamente cuánto consumí', b:'El alquiler por un lado y las expensas, los servicios y el wifi aparte, según lo que consuma cada mes, aunque el total varíe' },
   { id:'chk', type:'likert', label:'Para comprobar que estás leyendo, marcá <b>«En desacuerdo»</b>.', opts:LIK_ACUERDO },
   { id:'am1', type:'grid', shuffle:true, fixedTop:['lav','pil'], colored:true, label:'Si tu edificio o complejo tuviera estos espacios compartidos, ¿qué importancia tendría cada uno para vos?',
     rows:[O('lav','Lavandería'), O('pil','Pileta'), O('parr','Parrillas / asadores'), O('cow','Coworking o sala de estudio'), O('sum','Salón (SUM)'),
@@ -723,6 +723,7 @@ let currentScreen = 'welcome';
 let caseUUID = '';
 let startTime = null;
 let secEnter = null;
+let maxIdx = -1;   // bloque más avanzado al que llegó (para medir abandono aunque vuelva atrás)
 let QMAP = {};
 const SECTION_SCREENS = SECTIONS.map(s=>s.id);
 
@@ -977,6 +978,7 @@ function showOnly(id){
 function startSurvey(){
   if (PREVIEW){ previewBuild(); goToScreen('f1'); return; }
   caseUUID = generateUUID();
+  maxIdx = -1;
   startTime = Date.now();
   const utms = getUTMParams();
   responses = { uuid:caseUUID, modo:MODO, fp:huella(), estudio:ESTUDIO_COD, ola:OLA_ACTUAL, ola_fecha:OLA_FECHA, startTime:new Date().toISOString(), ...utms };
@@ -995,6 +997,7 @@ function goToScreen(id){
     responses['t_'+currentScreen] = (responses['t_'+currentScreen]||0) + Math.round((Date.now()-secEnter)/1000);
   }
   secEnter = SECTION_SCREENS.includes(id) ? Date.now() : null;
+  { const si = SECTION_SCREENS.indexOf(id); if (si > maxIdx){ maxIdx = si; responses.max_bloque = id; } }
   showOnly(id);
   currentScreen = id;
   if (PREVIEW){ const s = document.getElementById('pv-sel'); if (s) s.value = id; }
