@@ -385,7 +385,7 @@ body.tester .share-block{display:none}
   <div class="filter-card">
     <div class="filter-icon">🔒</div>
     <div class="filter-title">Tu privacidad</div>
-    <div class="filter-text">La encuesta es <strong>anónima</strong>: no registra tu nombre ni datos que te identifiquen. Para evitar respuestas duplicadas registramos datos técnicos del dispositivo, también de forma anónima. Si al final dejás un contacto para el sorteo, se guarda por separado de tus respuestas. Los datos se analizan de forma agregada y solo con fines de investigación (Ley 25.326 de Protección de Datos Personales).<br><br>¿Aceptás participar?</div>
+    <div class="filter-text">La encuesta es <strong>anónima</strong>: no registra tu nombre ni datos que te identifiquen. Para evitar respuestas duplicadas registramos datos técnicos del dispositivo, también de forma anónima. Si al final dejás un contacto para el sorteo, se guarda por separado de tus respuestas. Usamos herramientas de medición de Meta para saber si nuestros anuncios funcionan: no reciben tus respuestas. Los datos se analizan de forma agregada y solo con fines de investigación (Ley 25.326 de Protección de Datos Personales).<br><br>¿Aceptás participar?</div>
     <button class="btn-filter-yes" onclick="filterAnswer('consent','si')">Sí, quiero participar</button>
     <button class="btn-filter-no" onclick="filterAnswer('consent',null)">No, prefiero no participar</button>
   </div>
@@ -536,20 +536,20 @@ const ZONA_ZOOM_MIN = 12, ZONA_ZOOM_MAX = 16;
 // La zona se muestra como un círculo. Su radio es un 20 % mayor que el de un círculo de igual superficie que el polígono
 // original de la zona (≈ 377 m → 450 m). El centro está desplazado unos 150 m del terreno para que no se deduzca su ubicación exacta.
 const ZONA_CIRCULO = { centro:[-31.456813, -64.195394], radio:450 };
-const ZONA_REFERENCIAS = [                  // ⚠ coordenadas aproximadas · d = lado de la etiqueta
+const ZONA_REFERENCIAS = [                  // Athletic y Hospital Privado verificados (23/10) · d = lado de la etiqueta
   { n:'Ciudad Universitaria', c:[-31.4392, -64.1893], d:'top' },
   { n:'Jockey', c:[-31.4565, -64.1864], d:'bottom' },
-  { n:'Athletic', c:[-31.4640, -64.1800], d:'right' },   // ⚠ ubicación aproximada: verificar
+  { n:'Athletic', c:[-31.450638, -64.175338], d:'right' },
   { n:'Paseo del Jockey', c:[-31.4546, -64.1864], d:'right' },
-  { n:'Hospital Privado', c:[-31.4455, -64.1790], d:'right' },
-  { n:'Quality Espacio', c:[-31.4428, -64.1922], d:'left' },
+  { n:'Hospital Privado', c:[-31.442709, -64.198947], d:'bottom' },
+  { n:'Quality Espacio', c:[-31.4428, -64.1922], d:'right' },
 ];
 
 // Calidad de respuesta (no bloquea: se marca para depurar la base)
 const MIN_SECS = 240;        // menos de 4 minutos → q_rapido = 1
 
 // Píxel de Meta: pegar el ID del píxel (solo números). Vacío = no se carga. Nunca se carga en la versión de prueba.
-const META_PIXEL_ID = '';   // ⚠ completar antes de pautar
+const META_PIXEL_ID = '1671298337844499';
 if (META_PIXEL_ID && !TESTER && !PREVIEW){
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
   if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
@@ -684,7 +684,7 @@ const SECTIONS = [
   { id:'t4', type:'bipolar', label:'¿Y entre estas dos?', a:'Espacios compartidos (SUM, pileta, asador) con un departamento más chico', b:'Un departamento más grande, sin espacios compartidos' },
   { id:'t5', type:'bipolar', label:'¿Y entre estas dos?', a:'Una vivienda amoblada y equipada, pagando algo más por mes', b:'Una vivienda sin muebles, más barata, que amueblo yo' },
   { id:'t7', type:'bipolar', label:'¿Y entre estas dos?', a:'Vivir en un complejo con seguridad privada, aunque pague más por mes', b:'Vivir en un lugar sin seguridad privada, pagando menos por mes' },
-  { id:'t6', type:'bipolar', label:'Por último, ¿cómo preferís pagar tu vivienda?', a:'Un pago mensual fijo con todo incluido (alquiler, expensas, luz e internet)', b:'El alquiler y las expensas por un lado, y los servicios y la conexión aparte, variables según el consumo de cada mes' },
+  { id:'t6', type:'bipolar', label:'Por último, ¿cómo preferís pagar tu vivienda?', a:'Un pago mensual fijo con todo incluido (alquiler, expensas, luz e internet)', b:'El alquiler y las expensas por un lado, y los servicios y el internet aparte, variables según el consumo de cada mes' },
   { id:'chk', type:'likert', label:'Para comprobar que estás leyendo, marcá <b>«En desacuerdo»</b>.', opts:LIK_ACUERDO },
   { id:'am1', type:'grid', shuffle:true, fixedTop:['lav','pil'], colored:true, label:'Si tu edificio o complejo tuviera estos espacios compartidos, ¿qué importancia tendría cada uno para vos?',
     rows:[O('lav','Lavandería'), O('pil','Pileta'), O('parr','Parrillas / asadores'), O('cow','Coworking o sala de estudio'), O('sum','Salón (SUM)'),
