@@ -5,25 +5,24 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Vivir en Córdoba · Encuesta 2026</title>
-<!-- Vista previa al compartir el link (WhatsApp, Telegram, redes).
-     Versión final: cambiar og:title / og:description y usar preview.jpg en lugar de preview_tester.jpg -->
-<meta name="description" content="Te elegimos para poner a prueba esta encuesta sobre cómo viven y cómo quieren vivir las personas de 20 a 35 años en Córdoba. Tu mirada crítica nos ayuda a mejorarla.">
+<!-- Vista previa al compartir el link (WhatsApp, Telegram, redes). Versión final: usa preview.jpg -->
+<meta name="description" content="Encuesta sobre cómo viven y cómo quieren vivir las personas de 20 a 35 años en Córdoba. Son 10 minutos y participás de un sorteo.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Periferia Consultora">
 <meta property="og:url" content="https://vivir.periferia.ar/">
-<meta property="og:title" content="Vivir en Córdoba · Versión de prueba">
-<meta property="og:description" content="Te elegimos para poner a prueba esta encuesta antes de que salga. Respondela con ojo crítico: al final hay un espacio para tus observaciones.">
-<meta property="og:image" content="https://vivir.periferia.ar/preview_tester.jpg">
-<meta property="og:image:secure_url" content="https://vivir.periferia.ar/preview_tester.jpg">
+<meta property="og:title" content="Vivir en Córdoba · Encuesta 2026">
+<meta property="og:description" content="¿Tenés entre 20 y 35 años y vivís en Córdoba? Contanos cómo vivís y cómo te gustaría vivir. Son 10 minutos y participás de un sorteo.">
+<meta property="og:image" content="https://vivir.periferia.ar/preview.jpg">
+<meta property="og:image:secure_url" content="https://vivir.periferia.ar/preview.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Vivir en Córdoba · Versión de prueba · Periferia">
+<meta property="og:image:alt" content="Vivir en Córdoba · Encuesta 2026 · Periferia">
 <meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Vivir en Córdoba · Versión de prueba">
-<meta name="twitter:description" content="Te elegimos para poner a prueba esta encuesta antes de que salga.">
-<meta name="twitter:image" content="https://vivir.periferia.ar/preview_tester.jpg">
+<meta name="twitter:title" content="Vivir en Córdoba · Encuesta 2026">
+<meta name="twitter:description" content="¿Tenés entre 20 y 35 años y vivís en Córdoba? Son 10 minutos y participás de un sorteo.">
+<meta name="twitter:image" content="https://vivir.periferia.ar/preview.jpg">
 <meta name="theme-color" content="#F4EEE3">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='15' cy='17' r='11' fill='none' stroke='%232B2521' stroke-width='3'/%3E%3Ccircle cx='24' cy='7' r='4.5' fill='%23431217'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,7 +31,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <!--
   ============================================================
-  BORRADOR v1.0 · Instrumento cuantitativo · Estudio vivienda Córdoba
+  v11 · VERSIÓN FINAL · Instrumento cuantitativo · Estudio vivienda Córdoba
   Encuesta digital · personas de 20 a 35 años · objetivo 200 casos · Meta Ads · incentivo: sorteo
   Duración objetivo: 10 minutos.
   Código público del estudio: VC (neutro). No usar el nombre del cliente ni
@@ -418,14 +417,14 @@ body.tester .share-block{display:none}
       <input type="tel" class="text-input" id="thanks-phone" placeholder="+54 351 ... (teléfono · opcional)" style="margin-bottom:8px">
       <label class="consent-check"><input type="checkbox" id="thanks-resultados" checked> <span>Quiero recibir un resumen de los resultados cuando se publique.</span></label>
       <label class="consent-check"><input type="checkbox" id="thanks-entrevista"> <span>Acepto que me contacten para una <b>charla o entrevista breve</b> sobre este tema. Si lo marcás, podemos vincular tus respuestas con tu contacto solo para invitarte.</span></label>
-      <button class="btn-dark" onclick="saveContact()">Participar del sorteo</button>
+      <button class="btn-dark" id="btn-contact" onclick="saveContact()">Participar del sorteo</button>
       <p id="contact-saved-msg" class="ok-msg">✓ Listo, ya estás participando.</p>
       <p id="contact-error-msg" class="q-error" style="display:none">Dejá un email válido o un teléfono.</p>
     </div>
     <div class="tester-extra">
       <div class="q-label">¿Algo más que quieras contarnos sobre la encuesta?</div>
       <textarea class="text-input" id="tester-extra-txt" placeholder="Cualquier comentario suma: lo que te gustó, lo que cambiarías, lo que te hizo dudar…"></textarea>
-      <button class="btn-dark" style="margin-top:10px" onclick="saveTesterExtra()">Enviar comentario</button>
+      <button class="btn-dark" id="btn-tester-extra" style="margin-top:10px" onclick="saveTesterExtra()">Enviar comentario</button>
       <p id="tester-extra-msg" class="ok-msg">✓ Recibido. ¡Gracias!</p>
     </div>
     <div class="share-block">
@@ -492,7 +491,7 @@ body.tester .share-block{display:none}
 // CONFIG
 // ============================================================
 const FORCE_PREVIEW = false;       // true = vista previa (sin validaciones, sin guardar, con todas las condicionales visibles).
-const MODO = 'tester';             // 'tester' = versión de prueba (aviso en portada, comentario por bloque y evaluación final). 'final' = encuesta de campo.
+const MODO = 'final';              // 'tester' = versión de prueba (aviso en portada, comentario por bloque y evaluación final). 'final' = encuesta de campo.
 const TESTER = MODO === 'tester';
 const PREVIEW = FORCE_PREVIEW || new URLSearchParams(location.search).get('preview') === '1';
 const ESTUDIO_COD = 'VC';            // Código neutro para todo lo público.
@@ -508,14 +507,17 @@ const STORAGE_PREFIX = 'periferia_' + OLA_KEY_SUFFIX + ':';
 const CONTACT_PREFIX = 'periferia_contact_' + OLA_KEY_SUFFIX + ':';
 
 // Tramos de ingreso personal neto mensual (definidos con el cliente) y valor medio usado como referencia
-// para traducir porcentajes a montos. ⚠ Revisar los valores medios al momento del campo.
+// para traducir porcentajes a montos. Los tramos abiertos (el más bajo y el más alto) no tienen valor medio:
+// en la pregunta de porcentaje (e6) solo muestran los porcentajes, sin montos sugeridos.
 const INGRESO_TRAMOS = [
-  ['i1','Menos de $700.000', 550000],
+  ['i1','Menos de $700.000', null],
   ['i2','Entre $700.000 y $1.000.000', 850000],
   ['i3','Entre $1.000.000 y $1.400.000', 1200000],
   ['i4','Entre $1.400.000 y $1.800.000', 1600000],
   ['i5','Entre $1.800.000 y $2.200.000', 2000000],
-  ['i6','Más de $2.200.000', 2600000],
+  ['i6','Entre $2.200.000 y $2.800.000', 2500000],
+  ['i7','Entre $2.800.000 y $3.500.000', 3150000],
+  ['i8','Más de $3.500.000', null],
 ];
 const INGRESO_MEDIO = Object.fromEntries(INGRESO_TRAMOS.map(([v,,m])=>[v,m]));
 // Bandas de porcentaje del ingreso destinado al pago total de la vivienda
@@ -545,6 +547,15 @@ const ZONA_REFERENCIAS = [                  // ⚠ coordenadas aproximadas · d 
 
 // Calidad de respuesta (no bloquea: se marca para depurar la base)
 const MIN_SECS = 240;        // menos de 4 minutos → q_rapido = 1
+
+// Píxel de Meta: pegar el ID del píxel (solo números). Vacío = no se carga. Nunca se carga en la versión de prueba.
+const META_PIXEL_ID = '';   // ⚠ completar antes de pautar
+if (META_PIXEL_ID && !TESTER && !PREVIEW){
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;
+  s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', META_PIXEL_ID); fbq('track', 'PageView');
+}
 
 // ============================================================
 // HELPERS
@@ -604,7 +615,7 @@ const SECTIONS = [
   { id:'p7', type:'chips', label:'¿Estudiás actualmente?', opts:[O('no','No'),O('grado','Sí, una carrera de grado o terciario'),O('pos','Sí, un posgrado'),O('resid','Sí, una residencia (salud u otra)'),O('curso','Sí, cursos u otra formación')] },
   { id:'p8', type:'cards', label:'¿Cuál es tu principal ocupación o fuente de ingresos?', other:'otra', otherPh:'¿Cuál es tu situación?', opts:[
     O('priv','Empleado/a privado','En relación de dependencia'), O('pub','Empleado/a público','Nacional, provincial o municipal'),
-    O('indep','Independiente / freelance','Sin empleados a cargo'), O('empl','Empleador / PyME','Con empleados a cargo'),
+    O('indep','Independiente / monotributista / freelance','Sin empleados a cargo'), O('empl','Empleador / PyME','Con empleados a cargo'),
     O('estudiante','Estudiante','Sin trabajo remunerado'), O('desocupado','Desocupado/a','Buscando trabajo'),
     O('otra','Otra situación','Especificá') ] },
   { id:'p9', type:'chips', label:'¿Cómo es tu modalidad de trabajo?', showIf:TRABAJA, opts:[O('presencial','Presencial todos los días'),O('hibrido','Híbrido (algunos días remoto)'),O('remoto','Remoto'),O('turnos','Por turnos / guardias'),O('movil','Me muevo, sin lugar fijo')] },
@@ -638,7 +649,7 @@ const SECTIONS = [
     O('trato','El trato con el dueño o la inmobiliaria'), O('mantenimiento','Los arreglos y el mantenimiento'), O('tamano','El tamaño'),
     O('ubicacion','La ubicación'), O('inseguridad','La inseguridad'), O('facturas','Pagar muchas facturas por separado'),
     O('ninguno','Ninguno') ] },
-  { id:'p15', type:'chips', label:'Si hoy tuvieras que alquilar, ¿contarías con una garantía?', opts:[O('prop','Sí, garantía propietaria'),O('caucion','Podría pagar un seguro de caución'),O('no','No tendría garantía'),O('ns','No sé')] },
+  { id:'p15', type:'multichips', label:'Si hoy tuvieras que alquilar, ¿con qué garantía contarías?', note:'Podés marcar varias.', exclusive:['no','ns'], opts:[O('prop','Garantía propietaria'),O('recibo','Garantía con recibo de sueldo (propio o de un garante)'),O('caucion','Podría pagar un seguro de caución'),O('no','No tendría garantía'),O('ns','No sé')] },
 ]},
 
 { id:'s3', title:'Tus ingresos', sub:'Estos datos son confidenciales. Nos sirven para entender qué vivienda es posible para cada situación.', qs:[
@@ -668,26 +679,27 @@ const SECTIONS = [
 
 { id:'s5', title:'Tus prioridades', sub:'Elegí entre dos opciones. No hay respuestas correctas: nos interesa lo que vos preferís.', qs:[
   { id:'t1', type:'bipolar', label:'Si tuvieras que elegir, ¿qué preferís?', a:'Una cocina más grande y un baño más chico', b:'Un baño más grande y una cocina más chica' },
-  { id:'t2', type:'bipolar', label:'¿Y entre estas dos?', a:'Un espacio propio para trabajar o estudiar, con un dormitorio más chico', b:'Un dormitorio más grande, sin espacio propio para trabajar' },
+  { id:'t2', type:'bipolar', label:'¿Y entre estas dos?', a:'Un rincón para trabajar o estudiar en el ambiente principal, con un dormitorio más chico', b:'Un dormitorio más amplio, y para trabajar o estudiar usar un espacio compartido del edificio (cowork, sala de estudio o biblioteca)' },
   { id:'t3', type:'bipolar', label:'¿Y entre estas dos?', a:'Tener un coworking en mi edificio, de uso compartido con otros vecinos', b:'Trabajar dentro de mi vivienda con privacidad, aunque sea pequeña' },
   { id:'t4', type:'bipolar', label:'¿Y entre estas dos?', a:'Espacios compartidos (SUM, pileta, asador) con un departamento más chico', b:'Un departamento más grande, sin espacios compartidos' },
   { id:'t5', type:'bipolar', label:'¿Y entre estas dos?', a:'Una vivienda amoblada y equipada, pagando algo más por mes', b:'Una vivienda sin muebles, más barata, que amueblo yo' },
-  { id:'t6', type:'bipolar', label:'Por último, ¿cómo preferís pagar tu vivienda?', a:'Un pago mensual fijo con todo incluido (alquiler, expensas, servicios e internet), aunque no sepa exactamente cuánto consumí', b:'El alquiler por un lado y las expensas, los servicios y el wifi aparte, según lo que consuma cada mes, aunque el total varíe' },
+  { id:'t7', type:'bipolar', label:'¿Y entre estas dos?', a:'Vivir en un complejo con seguridad privada, aunque pague más por mes', b:'Vivir en un lugar sin seguridad privada, pagando menos por mes' },
+  { id:'t6', type:'bipolar', label:'Por último, ¿cómo preferís pagar tu vivienda?', a:'Un pago mensual fijo con todo incluido (alquiler, expensas, luz e internet)', b:'El alquiler y las expensas por un lado, y los servicios y la conexión aparte, variables según el consumo de cada mes' },
   { id:'chk', type:'likert', label:'Para comprobar que estás leyendo, marcá <b>«En desacuerdo»</b>.', opts:LIK_ACUERDO },
   { id:'am1', type:'grid', shuffle:true, fixedTop:['lav','pil'], colored:true, label:'Si tu edificio o complejo tuviera estos espacios compartidos, ¿qué importancia tendría cada uno para vos?',
     rows:[O('lav','Lavandería'), O('pil','Pileta'), O('parr','Parrillas / asadores'), O('cow','Coworking o sala de estudio'), O('sum','Salón (SUM)'),
           O('patio','Patio o parque común'), O('gym','Gimnasio'), O('bau','Baulera o espacio de guardado')],
     cols:[O('2','Muy importante'),O('1','Me sirve'),O('0','No me interesa')] },
-  { id:'s_6', type:'cards', label:'Para juntarte con amigos o familia, ¿qué preferís?', opts:[O('unidad','En mi casa, aunque sea chica'),O('sum','En un salón o quincho compartido del edificio'),O('afuera','Salir afuera: bares, parques, casas de otros')] },
+  { id:'s_6', type:'cards', label:'Para juntarte con tu grupo de amigos cercano o tu familia cercana (padres, hermanos, pareja o hijos), ¿qué preferís?', opts:[O('unidad','En mi casa, aunque sea chica'),O('sum','En un salón o quincho compartido del edificio'),O('afuera','Salir afuera: bares, parques, casas de otros')] },
 ]},
 
-{ id:'s6', title:'Tu ciudad', sub:'Qué buscás de la ubicación de tu vivienda.', qs:[
-  { id:'u1', type:'multi', max:3, shuffle:true, label:'¿Qué es lo más importante de la ubicación de tu vivienda? Elegí <b>hasta 3</b>.', opts:[
+{ id:'s6', title:'Tu ciudad', sub:'Qué buscarías en la ubicación de tu vivienda ideal.', qs:[
+  { id:'u1', type:'multi', max:3, shuffle:true, label:'Pensando en tu vivienda ideal, ¿qué es lo más importante de su ubicación? Elegí <b>hasta 3</b>.', opts:[
     O('centro','Cercanía al centro / Nueva Córdoba'), O('trabajo','Cercanía al trabajo o la facultad'), O('verde','Cercanía a parques y espacios verdes'),
     O('noche','Cercanía a bares, restaurantes y salidas'), O('comercios','Súper y comercios a pie'), O('transporte','Buen transporte público'),
     O('afectos','Cercanía a familia o amigos'), O('tranquilo','Un barrio tranquilo y seguro'), O('accesos','Acceso rápido a Circunvalación y autopistas') ] },
-  { id:'u3', type:'chips', label:'¿Cuánto tiempo de viaje al trabajo o a la facultad te parece aceptable, como máximo?', opts:[O('15','Hasta 15 min'),O('30','15 a 30 min'),O('45','30 a 45 min'),O('60','45 a 60 min'),O('mas','Más de 1 hora')] },
-  { id:'u4', type:'textopt', label:'¿En qué barrio trabajás o estudiás la mayor parte de la semana?', ph:'Ej: Nueva Córdoba', skips:[O('remoto','Desde casa'),O('variable','Varía, sin lugar fijo'),O('na','No trabajo ni estudio')] },
+  { id:'u3', type:'chips', label:'¿Cuánto tiempo de viaje te parece aceptable, como máximo, hasta el lugar donde pasás más horas durante la semana (trabajo o estudio)?', opts:[O('15','Hasta 15 min'),O('30','15 a 30 min'),O('45','30 a 45 min'),O('60','45 a 60 min'),O('mas','Más de 1 hora')] },
+  { id:'u4', type:'textopt', label:'¿En qué barrio está el lugar donde pasás <b>más horas durante la semana</b>, trabajando o estudiando?', note:'Si trabajás y estudiás, poné el lugar donde pasás más horas en la semana.', ph:'Ej: Nueva Córdoba', skips:[O('remoto','Desde casa'),O('variable','Varía, sin lugar fijo'),O('na','No trabajo ni estudio')] },
   { id:'zona', type:'info', html:`
     <div class="zona">
       <div class="zona-tag">Una zona de la ciudad</div>
@@ -729,7 +741,7 @@ const PV_COND = {
   p9:'Trabaja', p11:'Trabaja',
   h4:'Vive con su familia de origen', h6:'Vive con su familia de origen', h5:'Vive con su familia, alquila compartido o en residencia',
   h10:'Inquilino/a', h15:'Inquilino/a',
-  e6:'Tiene ingresos propios (los montos se calculan con el tramo de ingreso)', e6b:'No tiene ingresos propios',
+  e6:'Tiene ingresos propios (los montos se calculan con el tramo de ingreso; en el tramo más bajo y el más alto solo se muestran los porcentajes)', e6b:'No tiene ingresos propios',
   e4:'Piensa mudarse (o tal vez) en los próximos 2 años', m1:'Piensa mudarse (o tal vez) en los próximos 2 años', h6d:'No vive en vivienda propia',
   u7:'Conoce o ubica la zona', u8:'Conoce o ubica la zona',
 };
@@ -1142,11 +1154,10 @@ async function finishSurvey(){
     { const e = parseInt(responses.p2,10); responses.en_rango = (e>=20 && e<=35) ? 1 : 0; }   // edad dentro del público objetivo (20 a 35)
     await saveResponse(responses);
     marcarRespondido();
-    goToScreen('thanks');
+    goToScreen('thanks');   // el botón queda bloqueado: un segundo toque no reenvía
   } catch(e){
     btn.disabled = false; btn.textContent = 'Enviar respuestas ✓'; btn.style.opacity = '1';
   }
-  btn.disabled = false; btn.style.opacity = '1';
 }
 // Orden de columnas para la planilla: el script lo usa para acomodar las columnas en el orden del cuestionario
 function columnasCanonicas(){
@@ -1201,11 +1212,14 @@ function getAllResponses(){
   return all;
 }
 async function saveContact(){
+  const btn = document.getElementById('btn-contact');
+  if (btn.disabled) return;   // evita el doble envío
   const email = document.getElementById('thanks-email').value.trim();
   const phone = document.getElementById('thanks-phone').value.trim();
   const errEl = document.getElementById('contact-error-msg');
   if ((!email && !phone) || (email && !email.includes('@'))){ errEl.style.display = 'block'; return; }
   errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Enviando…'; btn.style.opacity = '0.6';
   const entrevista = document.getElementById('thanks-entrevista').checked;
   const resultados = document.getElementById('thanks-resultados').checked;
   // El contacto del sorteo se guarda aparte. Solo se vincula con las respuestas si la persona acepta la entrevista.
@@ -1219,13 +1233,18 @@ async function saveContact(){
   document.getElementById('thanks-contact-section').style.opacity = '0.6';
   document.getElementById('contact-saved-msg').style.display = 'block';
   ['thanks-email','thanks-phone','thanks-entrevista','thanks-resultados'].forEach(id=>document.getElementById(id).disabled = true);
+  btn.textContent = 'Ya estás participando ✓';
 }
 async function saveTesterExtra(){
+  const btn = document.getElementById('btn-tester-extra');
+  if (btn.disabled) return;   // evita el doble envío
   const t = document.getElementById('tester-extra-txt').value.trim();
   if (!t) return;
+  btn.disabled = true; btn.textContent = 'Enviando…'; btn.style.opacity = '0.6';
   await postToSheets({ tipo:'comentario_tester', modo:MODO, estudio:ESTUDIO_COD, ola:OLA_ACTUAL, uuid:caseUUID, comentario:t, savedAt:new Date().toISOString() });
   document.getElementById('tester-extra-txt').disabled = true;
   document.getElementById('tester-extra-msg').style.display = 'block';
+  btn.textContent = 'Comentario enviado ✓';
 }
 async function compartirEncuesta(){
   const url = window.location.origin + window.location.pathname;
