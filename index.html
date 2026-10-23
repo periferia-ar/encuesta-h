@@ -1200,7 +1200,9 @@ async function saveResponse(data){
   const flat = flatten(data);
   try { localStorage.setItem(STORAGE_PREFIX+data.uuid, JSON.stringify(flat)); } catch(e){}
   await postToSheets({ tipo:'respuesta', ...flat, _cols:colsParam() });
-  try { if (!TESTER && typeof fbq!=='undefined') fbq('track','Lead',{content_name:'encuesta_vivienda_completada',content_category:data.utm_term||'sin_utm',value:1.00,currency:'ARS'}); } catch(e){}
+  // Conversión para Meta solo si la edad está en el público del estudio (20 a 35): así la campaña aprende a buscar ese público
+  // aunque Meta tome la edad del conjunto como sugerencia. Fuera de rango, la respuesta se guarda igual en la planilla.
+  try { if (!TESTER && data.en_rango === 1 && typeof fbq!=='undefined') fbq('track','Lead',{content_name:'encuesta_vivienda_completada',content_category:data.utm_term||'sin_utm',value:1.00,currency:'ARS'}); } catch(e){}
 }
 function getAllResponses(){
   const all = [];
